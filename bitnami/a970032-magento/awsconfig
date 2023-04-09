@@ -1,0 +1,3 @@
+[profile AmazonCloudWatchAgent]
+output = text
+region = ap-east-1

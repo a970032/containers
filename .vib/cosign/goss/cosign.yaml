@@ -1,9 +1,7 @@
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
+
 command:
-  check-app-version:
-    exec: cosign version 2>&1
-    exit-status: 0
-    stdout:
-    - {{ .Env.APP_VERSION }}
   initialize-sigstore:
     exec: cosign initialize
     exit-status: 0

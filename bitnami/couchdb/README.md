@@ -1,4 +1,4 @@
-# CouchDB packaged by Bitnami
+# Bitnami package for CouchDB
 
 ## What is CouchDB?
 
@@ -13,29 +13,24 @@ Trademarks: This software listing is packaged by Bitnami. The respective tradema
 docker run --name couchdb bitnami/couchdb:latest
 ```
 
-### Docker Compose
-
-```console
-curl -sSL https://raw.githubusercontent.com/bitnami/containers/main/bitnami/couchdb/docker-compose.yml > docker-compose.yml
-docker-compose up -d
-```
-
 ## Why use Bitnami Images?
 
 * Bitnami closely tracks upstream source changes and promptly publishes new versions of this image using our automated systems.
 * With Bitnami images the latest bug fixes and features are available as soon as possible.
 * Bitnami containers, virtual machines and cloud images use the same components and configuration approach - making it easy to switch between formats based on your project needs.
-* All our images are based on [minideb](https://github.com/bitnami/minideb) a minimalist Debian based container image which gives you a small base container image and the familiarity of a leading Linux distribution.
-* All Bitnami images available in Docker Hub are signed with [Docker Content Trust (DCT)](https://docs.docker.com/engine/security/trust/content_trust/). You can use `DOCKER_CONTENT_TRUST=1` to verify the integrity of the images.
+* All our images are based on [**minideb**](https://github.com/bitnami/minideb) -a minimalist Debian based container image that gives you a small base container image and the familiarity of a leading Linux distribution- or **scratch** -an explicitly empty image-.
+* All Bitnami images available in Docker Hub are signed with [Notation](https://notaryproject.dev/). [Check this post](https://blog.bitnami.com/2024/03/bitnami-packaged-containers-and-helm.html) to know how to verify the integrity of the images.
 * Bitnami container images are released on a regular basis with the latest distribution packages available.
+
+Looking to use CouchDB in production? Try [VMware Tanzu Application Catalog](https://bitnami.com/enterprise), the commercial edition of the Bitnami catalog.
 
 ## Why use a non-root container?
 
-Non-root container images add an extra layer of security and are generally recommended for production environments. However, because they run as a non-root user, privileged tasks are typically off-limits. Learn more about non-root containers [in our docs](https://docs.bitnami.com/tutorials/work-with-non-root-containers/).
+Non-root container images add an extra layer of security and are generally recommended for production environments. However, because they run as a non-root user, privileged tasks are typically off-limits. Learn more about non-root containers [in our docs](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-work-with-non-root-containers-index.html).
 
 ## Supported tags and respective `Dockerfile` links
 
-Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.bitnami.com/tutorials/understand-rolling-tags-containers/).
+Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-understand-rolling-tags-containers-index.html).
 
 You can see the equivalence between the different tags by taking a look at the `tags-info.yaml` file present in the branch folder, i.e `bitnami/ASSET/BRANCH/DISTRO/tags-info.yaml`.
 
@@ -115,18 +110,33 @@ We can launch another containers using the same flag (`--network NETWORK`) in th
 
 ## Configuration
 
-The configuration can easily be setup in the Bitnami CouchDB Docker image by using the following environment variables:
+### Environment variables
 
-* `COUCHDB_NODENAME`: A server alias for clustering support. Default: **couchdb@127.0.0.1**
-* `COUCHDB_PORT_NUMBER`: Standard port for all HTTP API requests. Default: **5984**
-* `COUCHDB_CLUSTER_PORT_NUMBER`: Port for cluster communication. Default: **9100**
-* `COUCHDB_BIND_ADDRESS`: Address binding for the standard port. Default: **0.0.0.0**
-* `COUCHDB_CREATE_DATABASES`: If set to yes, during the first initialization of the container the system databases will be created. Default: **yes**
-* `COUCHDB_USER`: The username of the administrator user when authentication is enabled. Default: **admin**
-* `COUCHDB_PASSWORD`: The password to use for login with the admin user set in the `COUCHDB_USER` environment variable. Default: **couchdb**
-* `COUCHDB_PASSWORD_FILE`: Path to a file that contains the password for the custom user set in the `COUCHDB_USER` environment variable. This will override the value specified in `COUCHDB_PASSWORD`. No defaults.
-* `COUCHDB_SECRET`: The secret token for Proxy and Cookie Authentication. If it is not specified, it will be randomly generated. No defaults.
-* `COUCHDB_SECRET_FILE`: Path to a file that contains the contents of the secret parameter for CouchDB. This will override the value specified in `COUCHDB_SECRET`. No defaults.
+#### Customizable environment variables
+
+| Name                          | Description                                                                              | Default Value |
+|-------------------------------|------------------------------------------------------------------------------------------|---------------|
+| `COUCHDB_NODENAME`            | Name of the CouchDB node.                                                                | `nil`         |
+| `COUCHDB_PORT_NUMBER`         | Port number used by CouchDB.                                                             | `nil`         |
+| `COUCHDB_CLUSTER_PORT_NUMBER` | Port number used by CouchDB for clustering.                                              | `nil`         |
+| `COUCHDB_BIND_ADDRESS`        | Address to which the CouchDB process will bind to.                                       | `nil`         |
+| `COUCHDB_CREATE_DATABASES`    | Whether to create CouchDB system databases during initialization. Useful for clustering. | `yes`         |
+| `COUCHDB_USER`                | CouchDB admin username.                                                                  | `admin`       |
+| `COUCHDB_PASSWORD`            | Password for the CouchDB admin user.                                                     | `couchdb`     |
+| `COUCHDB_SECRET`              | CouchDB secret/token used for proxy and cookie authentication.                           | `bitnami`     |
+
+#### Read-only environment variables
+
+| Name                   | Description                               | Value                                          |
+|------------------------|-------------------------------------------|------------------------------------------------|
+| `COUCHDB_BASE_DIR`     | CouchDB installation directory.           | `${BITNAMI_ROOT_DIR}/couchdb`                  |
+| `COUCHDB_VOLUME_DIR`   | CouchDB persistence directory.            | `/bitnami/couchdb`                             |
+| `COUCHDB_BIN_DIR`      | CouchDB directory for binary executables. | `${COUCHDB_BASE_DIR}/bin`                      |
+| `COUCHDB_CONF_DIR`     | CouchDB configuration directory.          | `${COUCHDB_BASE_DIR}/etc`                      |
+| `COUCHDB_CONF_FILE`    | CouchDB configuration file.               | `${COUCHDB_CONF_DIR}/default.d/10-bitnami.ini` |
+| `COUCHDB_DATA_DIR`     | CouchDB directory where data is stored.   | `${COUCHDB_VOLUME_DIR}/data`                   |
+| `COUCHDB_DAEMON_USER`  | CouchDB system user.                      | `couchdb`                                      |
+| `COUCHDB_DAEMON_GROUP` | CouchDB system group.                     | `couchdb`                                      |
 
 You can specify these environment variables in the `docker run` command:
 
@@ -315,6 +325,12 @@ docker run --name couchdb bitnami/couchdb:latest
 
 * The usage of 'ALLOW_ANONYMOUS_LOGIN' is now deprecated. Please, specify a password for the admin user (defaults to "admin") by setting the 'COUCHDB_PASSWORD' environment variable.
 
+## Using `docker-compose.yaml`
+
+Please be aware this file has not undergone internal testing. Consequently, we advise its use exclusively for development or testing purposes. For production-ready deployments, we highly recommend utilizing its associated [Bitnami Helm chart](https://github.com/bitnami/charts/tree/main/bitnami/couchdb).
+
+If you detect any issue in the `docker-compose.yaml` file, feel free to report it or contribute with a fix by following our [Contributing Guidelines](https://github.com/bitnami/containers/blob/main/CONTRIBUTING.md).
+
 ## Contributing
 
 We'd love for you to contribute to this container. You can request new features by creating an [issue](https://github.com/bitnami/containers/issues) or submitting a [pull request](https://github.com/bitnami/containers/pulls) with your contribution.
@@ -323,17 +339,9 @@ We'd love for you to contribute to this container. You can request new features 
 
 If you encountered a problem running this container, you can file an [issue](https://github.com/bitnami/containers/issues/new/choose). For us to provide better support, be sure to fill the issue template.
 
-### Community supported solution
-
-Please, note this asset is a community-supported solution. This means that the Bitnami team is not actively working on new features/improvements nor providing support through GitHub Issues. Any new issue will stay open for 20 days to allow the community to contribute, after 15 days without activity the issue will be marked as stale being closed after 5 days.
-
-The Bitnami team will review any PR that is created, feel free to create a PR if you find any issue or want to implement a new feature.
-
-New versions and releases cadence are not going to be affected. Once a new version is released in the upstream project, the Bitnami container image will be updated to use the latest version, supporting the different branches supported by the upstream project as usual.
-
 ## License
 
-Copyright &copy; 2023 Bitnami
+Copyright &copy; 2024 Broadcom. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

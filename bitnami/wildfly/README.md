@@ -1,4 +1,4 @@
-# WildFly packaged by Bitnami
+# Bitnami package for WildFly
 
 ## What is WildFly?
 
@@ -13,21 +13,16 @@ Trademarks: This software listing is packaged by Bitnami. The respective tradema
 docker run --name wildfly bitnami/wildfly:latest
 ```
 
-### Docker Compose
-
-```console
-curl -sSL https://raw.githubusercontent.com/bitnami/containers/main/bitnami/wildfly/docker-compose.yml > docker-compose.yml
-docker-compose up -d
-```
-
 ## Why use Bitnami Images?
 
 * Bitnami closely tracks upstream source changes and promptly publishes new versions of this image using our automated systems.
 * With Bitnami images the latest bug fixes and features are available as soon as possible.
 * Bitnami containers, virtual machines and cloud images use the same components and configuration approach - making it easy to switch between formats based on your project needs.
-* All our images are based on [minideb](https://github.com/bitnami/minideb) a minimalist Debian based container image which gives you a small base container image and the familiarity of a leading Linux distribution.
-* All Bitnami images available in Docker Hub are signed with [Docker Content Trust (DCT)](https://docs.docker.com/engine/security/trust/content_trust/). You can use `DOCKER_CONTENT_TRUST=1` to verify the integrity of the images.
+* All our images are based on [**minideb**](https://github.com/bitnami/minideb) -a minimalist Debian based container image that gives you a small base container image and the familiarity of a leading Linux distribution- or **scratch** -an explicitly empty image-.
+* All Bitnami images available in Docker Hub are signed with [Notation](https://notaryproject.dev/). [Check this post](https://blog.bitnami.com/2024/03/bitnami-packaged-containers-and-helm.html) to know how to verify the integrity of the images.
 * Bitnami container images are released on a regular basis with the latest distribution packages available.
+
+Looking to use WildFly in production? Try [VMware Tanzu Application Catalog](https://bitnami.com/enterprise), the commercial edition of the Bitnami catalog.
 
 ## How to deploy WildFly in Kubernetes?
 
@@ -37,11 +32,11 @@ Bitnami containers can be used with [Kubeapps](https://kubeapps.dev/) for deploy
 
 ## Why use a non-root container?
 
-Non-root container images add an extra layer of security and are generally recommended for production environments. However, because they run as a non-root user, privileged tasks are typically off-limits. Learn more about non-root containers [in our docs](https://docs.bitnami.com/tutorials/work-with-non-root-containers/).
+Non-root container images add an extra layer of security and are generally recommended for production environments. However, because they run as a non-root user, privileged tasks are typically off-limits. Learn more about non-root containers [in our docs](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-work-with-non-root-containers-index.html).
 
 ## Supported tags and respective `Dockerfile` links
 
-Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.bitnami.com/tutorials/understand-rolling-tags-containers/).
+Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-understand-rolling-tags-containers-index.html).
 
 You can see the equivalence between the different tags by taking a look at the `tags-info.yaml` file present in the branch folder, i.e `bitnami/ASSET/BRANCH/DISTRO/tags-info.yaml`.
 
@@ -175,6 +170,52 @@ $ docker exec -it wildfly-server \
 ```
 
 ## Configuration
+
+### Environment variables
+
+#### Customizable environment variables
+
+| Name                                | Description                                                                                   | Default Value                           |
+|-------------------------------------|-----------------------------------------------------------------------------------------------|-----------------------------------------|
+| `WILDFLY_CONF_FILE`                 | Path to the WildFly configuration file.                                                       | `${WILDFLY_CONF_DIR}/standalone.xml`    |
+| `WILDFLY_MOUNTED_CONF_DIR`          | Directory for including custom configuration files (that override the default generated ones) | `${WILDFLY_VOLUME_DIR}/configuration`   |
+| `WILDFLY_DATA_DIR`                  | WildFly data directory.                                                                       | `${WILDFLY_VOLUME_DIR}/standalone/data` |
+| `WILDFLY_SERVER_LISTEN_ADDRESS`     | WildFly server listen address.                                                                | `nil`                                   |
+| `WILDFLY_MANAGEMENT_LISTEN_ADDRESS` | WildFly management listen address.                                                            | `nil`                                   |
+| `WILDFLY_HTTP_PORT_NUMBER`          | Port number used by the WildFly for HTTP connections.                                         | `nil`                                   |
+| `WILDFLY_HTTPS_PORT_NUMBER`         | Port number used by the WildFly for HTTPS connections.                                        | `nil`                                   |
+| `WILDFLY_AJP_PORT_NUMBER`           | Port number used by the WildFly for AJP connections.                                          | `nil`                                   |
+| `WILDFLY_MANAGEMENT_PORT_NUMBER`    | Port number used by the WildFly management interface.                                         | `nil`                                   |
+| `WILDFLY_USERNAME`                  | WildFly admin username.                                                                       | `user`                                  |
+| `WILDFLY_PASSWORD`                  | WildFly admin user password.                                                                  | `nil`                                   |
+| `JAVA_HOME`                         | Java Home directory.                                                                          | `${BITNAMI_ROOT_DIR}/java`              |
+| `JAVA_OPTS`                         | Java options.                                                                                 | `nil`                                   |
+
+#### Read-only environment variables
+
+| Name                                        | Description                                                                      | Value                                          |
+|---------------------------------------------|----------------------------------------------------------------------------------|------------------------------------------------|
+| `WILDFLY_BASE_DIR`                          | WildFly installation directory.                                                  | `${BITNAMI_ROOT_DIR}/wildfly`                  |
+| `WILDFLY_HOME_DIR`                          | WildFly user home directory.                                                     | `/home/wildfly`                                |
+| `WILDFLY_BIN_DIR`                           | WildFly directory for binary executables.                                        | `${WILDFLY_BASE_DIR}/bin`                      |
+| `WILDFLY_CONF_DIR`                          | WildFly server configuration directory.                                          | `${WILDFLY_BASE_DIR}/standalone/configuration` |
+| `WILDFLY_LOGS_DIR`                          | WildFly directory for log files.                                                 | `${WILDFLY_BASE_DIR}/standalone/log`           |
+| `WILDFLY_TMP_DIR`                           | WildFly directory for runtime temporary files.                                   | `${WILDFLY_BASE_DIR}/standalone/tmp`           |
+| `WILDFLY_DOMAIN_DIR`                        | Wildfly domain directory.                                                        | `${WILDFLY_BASE_DIR}/domain`                   |
+| `WILDFLY_STANDALONE_DIR`                    | Wildfly standalone directory.                                                    | `${WILDFLY_BASE_DIR}/standalone`               |
+| `WILDFLY_DEFAULT_DOMAIN_DIR`                | Wildfly default domain directory.                                                | `${WILDFLY_BASE_DIR}/domain.default`           |
+| `WILDFLY_DEFAULT_STANDALONE_DIR`            | Wildfly default standalone directory.                                            | `${WILDFLY_BASE_DIR}/standalone.default`       |
+| `WILDFLY_PID_FILE`                          | Path to the WildFly PID file.                                                    | `${WILDFLY_TMP_DIR}/wildfly.pid`               |
+| `WILDFLY_VOLUME_DIR`                        | WildFly directory for mounted configuration files.                               | `${BITNAMI_VOLUME_DIR}/wildfly`                |
+| `WILDFLY_DAEMON_USER`                       | WildFly system user.                                                             | `wildfly`                                      |
+| `WILDFLY_DAEMON_GROUP`                      | WildFly system group.                                                            | `wildfly`                                      |
+| `WILDFLY_DEFAULT_SERVER_LISTEN_ADDRESS`     | Default WildFLY SERVER listen address to enable at build time.                   | `0.0.0.0`                                      |
+| `WILDFLY_DEFAULT_MANAGEMENT_LISTEN_ADDRESS` | Default WildFLY MANAGEMENT listen address to enable at build time.               | `127.0.0.1`                                    |
+| `WILDFLY_DEFAULT_HTTP_PORT_NUMBER`          | Default WildFLY HTTP port number to enable at build time.                        | `8080`                                         |
+| `WILDFLY_DEFAULT_HTTPS_PORT_NUMBER`         | Default WildFLY HTTPS port number to enable at build time.                       | `8443`                                         |
+| `WILDFLY_DEFAULT_AJP_PORT_NUMBER`           | Default WildFLY AJP port number to enable at build time.                         | `8009`                                         |
+| `WILDFLY_DEFAULT_MANAGEMENT_PORT_NUMBER`    | Default WildFLY MANAGEMENT port number to enable at build time.                  | `9990`                                         |
+| `LAUNCH_JBOSS_IN_BACKGROUND`                | Ensure signals are forwarded to the JVM process correctly for graceful shutdown. | `true`                                         |
 
 ### Creating a custom user
 
@@ -325,6 +366,12 @@ Consequences:
 * All volumes have been merged at `/bitnami/wildfly`. Now you only need to mount a single volume at `/bitnami/wildfly` for persistence.
 * The logs are always sent to the `stdout` and are no longer collected in the volume.
 
+## Using `docker-compose.yaml`
+
+Please be aware this file has not undergone internal testing. Consequently, we advise its use exclusively for development or testing purposes. For production-ready deployments, we highly recommend utilizing its associated [Bitnami Helm chart](https://github.com/bitnami/charts/tree/main/bitnami/wildfly).
+
+If you detect any issue in the `docker-compose.yaml` file, feel free to report it or contribute with a fix by following our [Contributing Guidelines](https://github.com/bitnami/containers/blob/main/CONTRIBUTING.md).
+
 ## Contributing
 
 We'd love for you to contribute to this container. You can request new features by creating an [issue](https://github.com/bitnami/containers/issues) or submitting a [pull request](https://github.com/bitnami/containers/pulls) with your contribution.
@@ -335,7 +382,7 @@ If you encountered a problem running this container, you can file an [issue](htt
 
 ## License
 
-Copyright &copy; 2023 Bitnami
+Copyright &copy; 2024 Broadcom. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

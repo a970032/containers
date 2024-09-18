@@ -1,4 +1,4 @@
-# MySQL packaged by Bitnami
+# Bitnami package for MySQL
 
 ## What is MySQL?
 
@@ -13,23 +13,16 @@ Trademarks: This software listing is packaged by Bitnami. The respective tradema
 docker run --name mysql -e ALLOW_EMPTY_PASSWORD=yes bitnami/mysql:latest
 ```
 
-### Docker Compose
-
-```console
-curl -sSL https://raw.githubusercontent.com/bitnami/containers/main/bitnami/mysql/docker-compose.yml > docker-compose.yml
-docker-compose up -d
-```
-
-**Warning**: These quick setups are only intended for development environments. You are encouraged to change the insecure default credentials and check out the available configuration options in the [Configuration](#configuration) section for a more secure deployment.
-
 ## Why use Bitnami Images?
 
 * Bitnami closely tracks upstream source changes and promptly publishes new versions of this image using our automated systems.
 * With Bitnami images the latest bug fixes and features are available as soon as possible.
 * Bitnami containers, virtual machines and cloud images use the same components and configuration approach - making it easy to switch between formats based on your project needs.
-* All our images are based on [minideb](https://github.com/bitnami/minideb) a minimalist Debian based container image which gives you a small base container image and the familiarity of a leading Linux distribution.
-* All Bitnami images available in Docker Hub are signed with [Docker Content Trust (DCT)](https://docs.docker.com/engine/security/trust/content_trust/). You can use `DOCKER_CONTENT_TRUST=1` to verify the integrity of the images.
+* All our images are based on [**minideb**](https://github.com/bitnami/minideb) -a minimalist Debian based container image that gives you a small base container image and the familiarity of a leading Linux distribution- or **scratch** -an explicitly empty image-.
+* All Bitnami images available in Docker Hub are signed with [Notation](https://notaryproject.dev/). [Check this post](https://blog.bitnami.com/2024/03/bitnami-packaged-containers-and-helm.html) to know how to verify the integrity of the images.
 * Bitnami container images are released on a regular basis with the latest distribution packages available.
+
+Looking to use MySQL in production? Try [VMware Tanzu Application Catalog](https://bitnami.com/enterprise), the commercial edition of the Bitnami catalog.
 
 ## How to deploy MySQL in Kubernetes?
 
@@ -39,11 +32,11 @@ Bitnami containers can be used with [Kubeapps](https://kubeapps.dev/) for deploy
 
 ## Why use a non-root container?
 
-Non-root container images add an extra layer of security and are generally recommended for production environments. However, because they run as a non-root user, privileged tasks are typically off-limits. Learn more about non-root containers [in our docs](https://docs.bitnami.com/tutorials/work-with-non-root-containers/).
+Non-root container images add an extra layer of security and are generally recommended for production environments. However, because they run as a non-root user, privileged tasks are typically off-limits. Learn more about non-root containers [in our docs](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-work-with-non-root-containers-index.html).
 
 ## Supported tags and respective `Dockerfile` links
 
-Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.bitnami.com/tutorials/understand-rolling-tags-containers/).
+Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-understand-rolling-tags-containers-index.html).
 
 You can see the equivalence between the different tags by taking a look at the `tags-info.yaml` file present in the branch folder, i.e `bitnami/ASSET/BRANCH/DISTRO/tags-info.yaml`.
 
@@ -172,6 +165,70 @@ docker-compose up -d
 ```
 
 ## Configuration
+
+### Environment variables
+
+#### Customizable environment variables
+
+| Name                            | Description                                                                                                               | Default Value |
+|---------------------------------|---------------------------------------------------------------------------------------------------------------------------|---------------|
+| `ALLOW_EMPTY_PASSWORD`          | Allow MySQL access without any password.                                                                                  | `no`          |
+| `MYSQL_AUTHENTICATION_PLUGIN`   | MySQL authentication plugin to configure during the first initialization.                                                 | `nil`         |
+| `MYSQL_ROOT_USER`               | MySQL database root user.                                                                                                 | `root`        |
+| `MYSQL_ROOT_PASSWORD`           | MySQL database root user password.                                                                                        | `nil`         |
+| `MYSQL_USER`                    | MySQL database user to create during the first initialization.                                                            | `nil`         |
+| `MYSQL_PASSWORD`                | Password for the MySQL database user to create during the first initialization.                                           | `nil`         |
+| `MYSQL_DATABASE`                | MySQL database to create during the first initialization.                                                                 | `nil`         |
+| `MYSQL_MASTER_HOST`             | Address for the MySQL master node.                                                                                        | `nil`         |
+| `MYSQL_MASTER_PORT_NUMBER`      | Port number for the MySQL master node.                                                                                    | `3306`        |
+| `MYSQL_MASTER_ROOT_USER`        | MySQL database root user of the master host.                                                                              | `root`        |
+| `MYSQL_MASTER_ROOT_PASSWORD`    | Password for the MySQL database root user of the the master host.                                                         | `nil`         |
+| `MYSQL_MASTER_DELAY`            | MySQL database replication delay.                                                                                         | `0`           |
+| `MYSQL_REPLICATION_USER`        | MySQL replication database user.                                                                                          | `nil`         |
+| `MYSQL_REPLICATION_PASSWORD`    | Password for the MySQL replication database user.                                                                         | `nil`         |
+| `MYSQL_PORT_NUMBER`             | Port number to use for the MySQL Server service.                                                                          | `nil`         |
+| `MYSQL_REPLICATION_MODE`        | MySQL replication mode.                                                                                                   | `nil`         |
+| `MYSQL_REPLICATION_SLAVE_DUMP`  | Make a dump on master and update slave MySQL database                                                                     | `false`       |
+| `MYSQL_EXTRA_FLAGS`             | Extra flags to be passed to start the MySQL Server.                                                                       | `nil`         |
+| `MYSQL_INIT_SLEEP_TIME`         | Sleep time when waiting for MySQL init configuration operations to finish.                                                | `nil`         |
+| `MYSQL_CHARACTER_SET`           | MySQL collation to use.                                                                                                   | `nil`         |
+| `MYSQL_COLLATE`                 | MySQL collation to use.                                                                                                   | `nil`         |
+| `MYSQL_BIND_ADDRESS`            | MySQL bind address.                                                                                                       | `nil`         |
+| `MYSQL_SQL_MODE`                | MySQL Server SQL modes to enable.                                                                                         | `nil`         |
+| `MYSQL_UPGRADE`                 | MySQL upgrade option.                                                                                                     | `AUTO`        |
+| `MYSQL_IS_DEDICATED_SERVER`     | Whether the MySQL Server will run on a dedicated node.                                                                    | `nil`         |
+| `MYSQL_CLIENT_ENABLE_SSL`       | Whether to force SSL for connections to the MySQL database.                                                               | `no`          |
+| `MYSQL_CLIENT_SSL_CA_FILE`      | Path to CA certificate to use for SSL connections to the MySQL database server.                                           | `nil`         |
+| `MYSQL_CLIENT_SSL_CERT_FILE`    | Path to client public key certificate to use for SSL connections to the MySQL database server.                            | `nil`         |
+| `MYSQL_CLIENT_SSL_KEY_FILE`     | Path to client private key to use for SSL connections to the MySQL database server.                                       | `nil`         |
+| `MYSQL_CLIENT_EXTRA_FLAGS`      | Whether to force SSL connections with the "mysql" CLI tool. Useful for applications that rely on the CLI instead of APIs. | `no`          |
+| `MYSQL_STARTUP_WAIT_RETRIES`    | Number of retries waiting for the database to be running.                                                                 | `300`         |
+| `MYSQL_STARTUP_WAIT_SLEEP_TIME` | Sleep time between retries waiting for the database to be running.                                                        | `2`           |
+| `MYSQL_ENABLE_SLOW_QUERY`       | Whether to enable slow query logs.                                                                                        | `0`           |
+| `MYSQL_LONG_QUERY_TIME`         | How much time, in seconds, defines a slow query.                                                                          | `10.0`        |
+
+#### Read-only environment variables
+
+| Name                          | Description                                                | Value                         |
+|-------------------------------|------------------------------------------------------------|-------------------------------|
+| `DB_FLAVOR`                   | SQL database flavor. Valid values: `mariadb` or `mysql`.   | `mysql`                       |
+| `DB_BASE_DIR`                 | Base path for MySQL files.                                 | `${BITNAMI_ROOT_DIR}/mysql`   |
+| `DB_VOLUME_DIR`               | MySQL directory for persisted files.                       | `${BITNAMI_VOLUME_DIR}/mysql` |
+| `DB_DATA_DIR`                 | MySQL directory for data files.                            | `${DB_VOLUME_DIR}/data`       |
+| `DB_BIN_DIR`                  | MySQL directory where executable binary files are located. | `${DB_BASE_DIR}/bin`          |
+| `DB_SBIN_DIR`                 | MySQL directory where service binary files are located.    | `${DB_BASE_DIR}/bin`          |
+| `DB_CONF_DIR`                 | MySQL configuration directory.                             | `${DB_BASE_DIR}/conf`         |
+| `DB_DEFAULT_CONF_DIR`         | MySQL default configuration directory.                     | `${DB_BASE_DIR}/conf.default` |
+| `DB_LOGS_DIR`                 | MySQL logs directory.                                      | `${DB_BASE_DIR}/logs`         |
+| `DB_TMP_DIR`                  | MySQL directory for temporary files.                       | `${DB_BASE_DIR}/tmp`          |
+| `DB_CONF_FILE`                | Main MySQL configuration file.                             | `${DB_CONF_DIR}/my.cnf`       |
+| `DB_PID_FILE`                 | MySQL PID file.                                            | `${DB_TMP_DIR}/mysqld.pid`    |
+| `DB_SOCKET_FILE`              | MySQL Server socket file.                                  | `${DB_TMP_DIR}/mysql.sock`    |
+| `DB_DAEMON_USER`              | Users that will execute the MySQL Server process.          | `mysql`                       |
+| `DB_DAEMON_GROUP`             | Group that will execute the MySQL Server process.          | `mysql`                       |
+| `MYSQL_DEFAULT_PORT_NUMBER`   | Default port number to use for the MySQL Server service.   | `3306`                        |
+| `MYSQL_DEFAULT_CHARACTER_SET` | Default MySQL character set.                               | `utf8mb4`                     |
+| `MYSQL_DEFAULT_BIND_ADDRESS`  | Default MySQL bind address.                                | `0.0.0.0`                     |
 
 ### Initializing a new instance
 
@@ -302,6 +359,7 @@ A **zero downtime** MySQL master-slave [replication](https://dev.mysql.com/doc/r
 * `MYSQL_MASTER_PORT_NUMBER`: Server port of the replication master (slave parameter). Defaults to `3306`.
 * `MYSQL_MASTER_ROOT_USER`: User on replication master with access to `MYSQL_DATABASE` (slave parameter). Defaults to `root`
 * `MYSQL_MASTER_ROOT_PASSWORD`: Password of user on replication master with access to `MYSQL_DATABASE` (slave parameter). No defaults.
+* `MYSQL_MASTER_DELAY`: The database replication delay (slave parameter). Defaults to `0`.
 
 In a replication cluster you can have one master and zero or more slaves. When replication is enabled the master node is in read-write mode, while the slaves are in read-only mode. For best performance its advisable to limit the reads to the slaves.
 
@@ -385,6 +443,10 @@ docker-compose up --detach --scale mysql-master=1 --scale mysql-slave=3
 The above command scales up the number of slaves to `3`. You can scale down in the same manner.
 
 > **Note**: You should not scale up/down the number of master nodes. Always have only one master node running.
+
+If your master database is missing some binary files, the replication will break. It's possible to add `MYSQL_REPLICATION_SLAVE_DUMP=true` to make a dump on the master and import it on the slave.
+
+> **Note**: The master database must be only used by this process until the end to avoid missing data.
 
 ### Configuration file
 
@@ -521,10 +583,31 @@ You can configure the containers [logging driver](https://docs.docker.com/engine
 
 ### Slow query logs
 
-By default MySQL doesn't enable [slow query log](https://dev.mysql.com/doc/refman/8.0/en/slow-query-log.html) to record the SQL queries that take a long time to perform. You can modify these settings using the following environment variables:
+By default MySQL doesn't enable [slow query log](https://dev.mysql.com/doc/refman/en/slow-query-log.html) to record the SQL queries that take a long time to perform. You can modify these settings using the following environment variables:
 
 * `MYSQL_ENABLE_SLOW_QUERY`: Whether to enable slow query logs. Default: `0`
 * `MYSQL_LONG_QUERY_TIME`: How much time, in seconds, defines a slow query. Default: `10.0`
+
+Slow queries information is logged to the `<data-dir>/<hostname>-slow.log` file by default, and you can easily check it with the `mysqldumpslow` tool ([link to docs](https://dev.mysql.com/doc/refman/en/mysqldumpslow.html)):
+
+```console
+$ docker run -d -e MYSQL_ENABLE_SLOW_QUERY=1 -e ALLOW_EMPTY_PASSWORD=yes --name my-mysql-container bitnami/mysql
+# wait a bit for the initialization process...
+$ docker exec -it my-mysql-container mysqldumpslow
+Reading mysql slow query log from /bitnami/mysql/data/<hostname>-slow.log
+Count: 1  Time=0.01s (0s)  Lock=0.00s (0s)  Rows=0.0 (0), root[root]@localhost
+  GRANT ALL PRIVILEGES ON *.* TO 'S'@'S' WITH GRANT OPTION
+
+Count: 1  Time=0.01s (0s)  Lock=0.00s (0s)  Rows=0.0 (0), root[root]@localhost
+  CREATE USER 'S'@'S'
+
+Count: 1  Time=0.01s (0s)  Lock=0.00s (0s)  Rows=0.0 (0), root[root]@localhost
+  DELETE FROM mysql.user WHERE user not in ('S','S')
+
+Count: 1  Time=0.00s (0s)  Lock=0.00s (0s)  Rows=0.0 (0), root[root]@localhost
+  flush privileges
+(...)
+```
 
 ### Slow filesystems
 
@@ -591,7 +674,13 @@ or using Docker Compose:
 docker-compose up mysql
 ```
 
+> **Note**: Automatic upgrade behavior at startup can be changed setting the env var `MYSQL_UPGRADE`. More information [here](https://dev.mysql.com/doc/refman/8.0/en/server-options.html#option_mysqld_upgrade)
+
 ## Notable Changes
+
+### 8.0.37-debian-12-r6, 8.3.0-debian-12-r15, 8.4.0-debian-12-r7
+
+* Upgrade level can be set by `MYSQL_UPGRADE` env var. By default this variable is set to `AUTO`.
 
 ### 5.7.36-debian-10-r36, 8.0.27-debian-10-r35, 5.7.41-r10-debian-11 and 8.0.32-r10-debian-11
 
@@ -635,6 +724,12 @@ $ docker-compose up -d
 * `ALLOW_EMPTY_PASSWORD` has been added to the available env variables. It can be used to allow blank passwords for MySQL.
 * By default the MySQL image requires a root password to start. You can specify it using the `MYSQL_ROOT_PASSWORD` env variable or disable this requirement by setting the `ALLOW_EMPTY_PASSWORD`  env variable to `yes` (testing or development scenarios).
 
+## Using `docker-compose.yaml`
+
+Please be aware this file has not undergone internal testing. Consequently, we advise its use exclusively for development or testing purposes. For production-ready deployments, we highly recommend utilizing its associated [Bitnami Helm chart](https://github.com/bitnami/charts/tree/main/bitnami/mysql).
+
+If you detect any issue in the `docker-compose.yaml` file, feel free to report it or contribute with a fix by following our [Contributing Guidelines](https://github.com/bitnami/containers/blob/main/CONTRIBUTING.md).
+
 ## Contributing
 
 We'd love for you to contribute to this container. You can request new features by creating an [issue](https://github.com/bitnami/containers/issues) or submitting a [pull request](https://github.com/bitnami/containers/pulls) with your contribution.
@@ -645,7 +740,7 @@ If you encountered a problem running this container, you can file an [issue](htt
 
 ## License
 
-Copyright &copy; 2023 Bitnami
+Copyright &copy; 2024 Broadcom. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

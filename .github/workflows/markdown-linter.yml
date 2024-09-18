@@ -1,3 +1,6 @@
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
+
 name: '[CI/CD] Markdown linter'
 on:
   pull_request:
@@ -5,28 +8,32 @@ on:
       - main
     paths:
       - '**.md'
-permissions:
-  contents: read
+# Remove all permissions by default
+permissions: {}
 jobs:
   markdown-linter:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Install mardownlint
         run: npm install -g markdownlint-cli@0.33.0
       - name: Checkout project
-        uses: actions/checkout@v3
+        uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
       - name: Execute markdownlint
+        env:
+          DIFF_URL: "${{github.event.pull_request.diff_url}}"
+          TEMP_FILE: "${{runner.temp}}/pr-${{github.event.number}}.diff"
+          TEMP_OUTPUT: "${{runner.temp}}/output"
         run: |
-          # Using the Github API to detect the files changed as git merge-base stops working when the branch is behind
-          # and jitterbit/get-changed-files does not support pull_request_target
-          URL="https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files"
-          files_changed_data=$(curl -s --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' -X GET -G "$URL")
-          files_changed="$(echo "$files_changed_data" | jq -r '.[] | .filename')"
+          # This request doesn't consume API calls.
+          curl -Lkso $TEMP_FILE $DIFF_URL
+          files_changed="$(sed -nr 's/[\-\+]{3} [ab]\/(.*)/\1/p' $TEMP_FILE | sort | uniq)"
           md_files="$(echo "$files_changed" | grep -o ".*\.md$" | sort | uniq || true)"
           # Create an empty file, useful when the PR changes ignored files
-          touch ${{runner.temp}}/output
+          touch "${TEMP_OUTPUT}"
           exit_code=0
-          markdownlint -o ${{runner.temp}}/output ${md_files[@]} || exit_code=$?
+          markdownlint -o "${TEMP_OUTPUT}" ${md_files[@]} || exit_code=$?
           while read -r line; do
             # line format:
             #   file:row[:column] message
@@ -42,7 +49,7 @@ jobs:
             else
               echo "::warning:: Error processing: ${line}"
             fi
-          done < ${{runner.temp}}/output
+          done < "${TEMP_OUTPUT}"
           if [[ $exit_code -ne 0 ]]; then
             echo "::error:: Please review linter messages"
             exit "$exit_code"

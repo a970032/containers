@@ -1,5 +1,0 @@
-version: '2'
-
-services:
-  supabase-realtime:
-    image: docker.io/bitnami/supabase-realtime:2

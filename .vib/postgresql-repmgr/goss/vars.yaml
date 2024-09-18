@@ -1,5 +1,4 @@
 binaries:
-  - gosu
   - psql
   - pg_dump
   - pg_dumpall
@@ -22,7 +21,6 @@ directories:
   - paths:
       - /opt/bitnami/repmgr/events
 files:
-  - mode: "0775"
-    paths:
+  - paths:
       - /opt/bitnami/repmgr/events/router.sh
 root_dir: /opt/bitnami

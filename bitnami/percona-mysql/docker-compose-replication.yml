@@ -1,8 +1,9 @@
-version: '2.1'
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
 
 services:
   primary:
-    image: docker.io/bitnami/percona-mysql:8.0
+    image: docker.io/bitnami/percona-mysql:8.4
     ports:
       - '3306'
     volumes:
@@ -22,7 +23,7 @@ services:
       retries: 6
 
   secondary:
-    image: docker.io/bitnami/percona-mysql:8.0
+    image: docker.io/bitnami/percona-mysql:8.4
     ports:
       - '3306'
     depends_on:

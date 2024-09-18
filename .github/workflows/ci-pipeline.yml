@@ -7,14 +7,7 @@ on: # rebuild any PRs and main branch changes
     branches:
       - main
       - bitnami:main
-permissions:
-  issues: write
-  pull-requests: write
-  statuses: write
-env:
-  CSP_API_URL: https://console.cloud.vmware.com
-  CSP_API_TOKEN: ${{ secrets.CSP_API_TESTING_TOKEN }}
-  VIB_PUBLIC_URL: https://cp.bromelia.vmware.com
+permissions: {}
 # Avoid concurrency over the same PR
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
@@ -22,6 +15,8 @@ jobs:
   get-containers:
     runs-on: ubuntu-latest
     name: Get modified containers
+    permissions:
+      pull-requests: read
     if: |
       github.event.pull_request.state != 'closed' &&
       (
@@ -30,20 +25,20 @@ jobs:
     outputs:
       result: ${{ steps.get-containers.outputs.result }}
       containers: ${{ steps.get-containers.outputs.containers }}
+      dockerfiles: ${{ steps.get-containers.outputs.dockerfiles }}
     steps:
       - id: get-containers
         name: Get modified containers
         env:
-          DIFF_URL: "${{github.event.pull_request.diff_url}}"
-          TEMP_FILE: "${{runner.temp}}/pr-${{github.event.number}}.diff"
+          PULL_REQUEST_NUMBER: "${{ github.event.pull_request.number }}"
+          GITHUB_TOKEN: "${{ github.token }}"
         run: |
-          # This request doesn't consume API calls.
-          curl -Lkso $TEMP_FILE $DIFF_URL
-          files_changed="$(sed -nr 's/[\-\+]{3} [ab]\/(.*)/\1/p' $TEMP_FILE | sort | uniq)"
+          files_changed="$(gh api --paginate /repos/${GITHUB_REPOSITORY}/pulls/${PULL_REQUEST_NUMBER}/files | jq -r '.[] | .filename')"
           # Adding || true to avoid "Process exited with code 1" errors
           flavors=($(echo "$files_changed" | xargs dirname | grep -o "^bitnami/[^/]*/[^/]*/[^/]*" | sort | uniq || true))
           assets=($(echo "$files_changed" | xargs dirname | sed -nr "s|bitnami/([^/]*)/.*|\1|p" | sort | uniq || true))
           non_readme_files=$(echo "$files_changed" | grep -vc "\.md" || true)
+          dockerfiles=($(echo "$files_changed" | grep -oE ".*/Dockerfile$" | sort | uniq || true))
 
           if [[ "$non_readme_files" -le "0" ]]; then
             # The only changes are .md files -> SKIP
@@ -53,14 +48,53 @@ jobs:
             echo "result=skip" >> $GITHUB_OUTPUT
           else
             containers_json=$(printf "%s\n" "${flavors[@]}" | jq -R . | jq -cs .)
+            dockerfiles_json=$(printf "%s\n" "${dockerfiles[@]}" | jq -R . | jq -cs .)
             echo "result=ok" >> $GITHUB_OUTPUT
             echo "containers=${containers_json}" >> $GITHUB_OUTPUT
+            echo "dockerfiles=${dockerfiles_json}" >> $GITHUB_OUTPUT
           fi
+  license-headers-linter:
+    runs-on: ubuntu-latest
+    name: License Headers Linter
+    permissions:
+      contents: read
+      pull-requests: write
+    needs: get-containers
+    steps:
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
+        name: Checkout Repository
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+      - id: get-modified-files
+        name: 'Get modified files'
+        env:
+          DOCKERFILES: "${{ needs.get-containers.outputs.dockerfiles }}"
+        run: |
+          if [[ -n "${DOCKERFILES}" ]]; then
+            # Overwrite configuration file to analyze only changed dockerfiles
+            yq -i '. | .header.paths=env(DOCKERFILES)' .licenserc.yaml
+            echo "result=success" >> $GITHUB_OUTPUT
+          else
+            echo "result=skip" >> $GITHUB_OUTPUT
+          fi
+      - name: Check license Headers
+        uses: apache/skywalking-eyes/header@cd7b195c51fd3d6ad52afceb760719ddc6b3ee91
+        if: ${{ steps.get-modified-files.outputs.result == 'success' }}
   vib-verify:
     runs-on: ubuntu-latest
     needs: get-containers
-    if: ${{ needs.get-containers.outputs.result == 'ok' }}
+    # Automatic PRs do not need to be re-tested in GitHub
+    if: |
+      needs.get-containers.outputs.result == 'ok' &&
+      github.event.pull_request.user.login != 'bitnami-bot'
     name: VIB Verify
+    permissions:
+      contents: read
+    env:
+      CSP_API_URL: https://console.tanzu.broadcom.com
+      CSP_API_TOKEN: ${{ secrets.CSP_API_TOKEN }}
+      VIB_PUBLIC_URL: https://cp.bromelia.vmware.com
     continue-on-error: false
     strategy:
       fail-fast: false
@@ -68,7 +102,7 @@ jobs:
       matrix:
         container: ${{ fromJSON(needs.get-containers.outputs.containers) }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@692973e3d937129bcbf40652eb9f2f61becf3332
         name: Checkout Repository
         with:
           # Full history is not required anymore
@@ -81,6 +115,7 @@ jobs:
         run: |
           if [[ -d "${{ matrix.container }}" ]]; then
             name="$(echo "${{ matrix.container }}" | awk -F '/' '{print $2}')"
+            branch="$(echo "${{ matrix.container }}" | awk -F '/' '{print $3}')"
             tag=""
             if [[ "${{ github.event.pull_request.user.login }}" == "bitnami-bot" ]]; then
               tag="$(grep -oE "org.opencontainers.image.ref.name=\".+\"" ${{ matrix.container }}/Dockerfile | sed -nr "s|org.opencontainers.image.ref.name=\"(.+)\"|\1|p")"
@@ -92,8 +127,13 @@ jobs:
               echo "No tag found for: ${{ matrix.container }}"
               exit 1
             else
+              dsl_path="${name}"
+              if [[ -d ".vib/${dsl_path}/${branch}" ]]; then
+                dsl_path="${dsl_path}/${branch}"
+              fi
               echo "tag=${tag}" >> $GITHUB_OUTPUT
               echo "name=${name}" >> $GITHUB_OUTPUT
+              echo "dsl_path=${dsl_path}" >> $GITHUB_OUTPUT
               echo "result=ok" >> $GITHUB_OUTPUT
             fi
           else
@@ -104,27 +144,29 @@ jobs:
         name: Verify
         if: ${{ steps.get-container-metadata.outputs.result == 'ok' }}
         with:
-          pipeline: ${{ steps.get-container-metadata.outputs.name }}/vib-verify.json
+          pipeline: ${{ steps.get-container-metadata.outputs.dsl_path }}/vib-verify.json
         env:
           # Path with docker resources
           VIB_ENV_PATH: ${{ matrix.container }}
           # Container name
-          VIB_ENV_CONTAINER: ${{ steps.get-container-metadata.outputs.name  }}
+          VIB_ENV_CONTAINER: ${{ steps.get-container-metadata.outputs.name }}
           VIB_ENV_TAG: ${{ steps.get-container-metadata.outputs.tag }}
   verification-summary:
     # Ensure all containers passed the verification
     runs-on: ubuntu-latest
     name: Check Matrix Outcome
+    permissions:
+      statuses: write
     needs:
       - get-containers
       - vib-verify
     outputs:
       result: ${{ steps.get-status.outputs.result }}
-    if: ${{ always() }}
+    if: ${{ always() && github.event.pull_request.user.login != 'bitnami-bot' }}
     steps:
       - id: get-status
         name: Check Status
-        uses: actions/github-script@v6
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
         with:
           result-encoding: string
           script: |
@@ -162,24 +204,32 @@ jobs:
   auto-pr-review:
     runs-on: ubuntu-latest
     name: Reviewal for automated PRs
-    needs: verification-summary
+    permissions:
+      pull-requests: write
+    needs:
+      - license-headers-linter
     # This job will be executed when the PR was created by bitnami-bot and it has the 'auto-merge' label
     if: |
-      always() &&
       contains(github.event.pull_request.labels.*.name, 'auto-merge') &&
       github.event.pull_request.user.login == 'bitnami-bot'
     steps:
-      # Approve the CI's PR if the 'VIB Verify' job succeeded
+      # Approve the CI's PR automatically, as it has been tested in our internal pipeline already
       # Approved by the 'github-actions' user; a PR can't be approved by its author
       - name: PR Approval
-        if: ${{ needs.verification-summary.outputs.result == 'success' }}
-        uses: hmarr/auto-approve-action@v3.0.0
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
         with:
-          pull-request-number: ${{ github.event.number }}
+          result-encoding: string
+          retries: 3
+          script: |
+            github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              event: 'APPROVE',
+            });
       - name: Merge
         id: merge
-        if: ${{ needs.verification-summary.outputs.result == 'success' }}
-        uses: actions/github-script@v6
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
         with:
           result-encoding: string
           retries: 3
@@ -192,15 +242,22 @@ jobs:
               repo: context.repo.repo,
               merge_method: 'squash'
             })
-      # If the CI did not succeed ('VIB Verify' failed or skipped),
+      # If the merge process did not succeed,
       # post a comment on the PR and assign a maintainer agent to review it
       - name: Manual review required
-        if: ${{ always() && (needs.verification-summary.outputs.result != 'success' || steps.merge.outcome != 'success') }}
-        uses: peter-evans/create-or-update-comment@v2.0.0
-        with:
-          issue-number: ${{ github.event.number }}
-          # Necessary to trigger support workflows
-          token: ${{ secrets.BITNAMI_BOT_TOKEN }}
-          body: |
+        if: ${{ always() && steps.merge.outcome != 'success' }}
+        uses: actions/github-script@60a0d83039c74a4aee543508d2ffcb1c3799cdea
+        env:
+          BODY: |
             There has been an error during the automated release process. Manual revision is now required.
             Please check the related [action_run#${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for more information.
+        with:
+          retries: 3
+          script: |
+            const {BODY} = process.env
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `${BODY}`
+            })

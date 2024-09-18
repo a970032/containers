@@ -1,4 +1,4 @@
-# Apache Flink packaged by Bitnami
+# Bitnami package for Apache Flink
 
 ## What is Apache Flink?
 
@@ -11,21 +11,23 @@ Trademarks: This software listing is packaged by Bitnami. The respective tradema
 ## TL;DR
 
 ```console
-docker run --name v bitnami/flink:latest
+docker run --name flink bitnami/flink:latest
 ```
 
 ## Why use Bitnami Images?
 
-- Bitnami closely tracks upstream source changes and promptly publishes new versions of this image using our automated systems.
-- With Bitnami images the latest bug fixes and features are available as soon as possible.
-- Bitnami containers, virtual machines and cloud images use the same components and configuration approach - making it easy to switch between formats based on your project needs.
-- All our images are based on [minideb](https://github.com/bitnami/minideb) a minimalist Debian based container image which gives you a small base container image and the familiarity of a leading Linux distribution.
-- All Bitnami images available in Docker Hub are signed with [Docker Content Trust (DCT)](https://docs.docker.com/engine/security/trust/content_trust/). You can use `DOCKER_CONTENT_TRUST=1` to verify the integrity of the images.
-- Bitnami container images are released on a regular basis with the latest distribution packages available.
+* Bitnami closely tracks upstream source changes and promptly publishes new versions of this image using our automated systems.
+* With Bitnami images the latest bug fixes and features are available as soon as possible.
+* Bitnami containers, virtual machines and cloud images use the same components and configuration approach - making it easy to switch between formats based on your project needs.
+* All our images are based on [**minideb**](https://github.com/bitnami/minideb) -a minimalist Debian based container image that gives you a small base container image and the familiarity of a leading Linux distribution- or **scratch** -an explicitly empty image-.
+* All Bitnami images available in Docker Hub are signed with [Notation](https://notaryproject.dev/). [Check this post](https://blog.bitnami.com/2024/03/bitnami-packaged-containers-and-helm.html) to know how to verify the integrity of the images.
+* Bitnami container images are released on a regular basis with the latest distribution packages available.
+
+Looking to use Apache Flink in production? Try [VMware Tanzu Application Catalog](https://bitnami.com/enterprise), the commercial edition of the Bitnami catalog.
 
 ## Supported tags and respective `Dockerfile` links
 
-Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.bitnami.com/tutorials/understand-rolling-tags-containers/).
+Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-understand-rolling-tags-containers-index.html).
 
 You can see the equivalence between the different tags by taking a look at the `tags-info.yaml` file present in the branch folder, i.e `bitnami/ASSET/BRANCH/DISTRO/tags-info.yaml`.
 
@@ -55,9 +57,37 @@ docker build -t bitnami/APP:latest .
 
 ## Why use a non-root container?
 
-Non-root container images add an extra layer of security and are generally recommended for production environments. However, because they run as a non-root user, privileged tasks are typically off-limits. Learn more about non-root containers [in our docs](https://docs.bitnami.com/tutorials/work-with-non-root-containers/).
+Non-root container images add an extra layer of security and are generally recommended for production environments. However, because they run as a non-root user, privileged tasks are typically off-limits. Learn more about non-root containers [in our docs](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-work-with-non-root-containers-index.html).
 
 ## Configuration
+
+### Environment variables
+
+#### Customizable environment variables
+
+| Name                                      | Description                                                                                           | Default Value                         |
+|-------------------------------------------|-------------------------------------------------------------------------------------------------------|---------------------------------------|
+| `FLINK_MODE`                              | Flink default mode.                                                                                   | `jobmanager`                          |
+| `FLINK_CFG_REST_PORT`                     | The port that the client connects to.                                                                 | `8081`                                |
+| `FLINK_TASK_MANAGER_NUMBER_OF_TASK_SLOTS` | Number of task slots for taskmanager.                                                                 | `$(grep -c ^processor /proc/cpuinfo)` |
+| `FLINK_PROPERTIES`                        | List of Flink cluster configuration options separated by new line, the same way as in the flink-conf. | `nil`                                 |
+
+#### Read-only environment variables
+
+| Name                     | Description                                                                                                                 | Value                                  |
+|--------------------------|-----------------------------------------------------------------------------------------------------------------------------|----------------------------------------|
+| `FLINK_BASE_DIR`         | Flink installation directory.                                                                                               | `${BITNAMI_ROOT_DIR}/flink`            |
+| `FLINK_BIN_DIR`          | Flink installation directory.                                                                                               | `${FLINK_BASE_DIR}/bin`                |
+| `FLINK_WORK_DIR`         | Flink installation directory.                                                                                               | `${FLINK_BASE_DIR}`                    |
+| `FLINK_LOG_DIR`          | Flink log directory.                                                                                                        | `${FLINK_BASE_DIR}/log`                |
+| `FLINK_CONF_DIR`         | Flink configuration directory.                                                                                              | `${FLINK_BASE_DIR}/conf`               |
+| `FLINK_DEFAULT_CONF_DIR` | Flink configuration directory.                                                                                              | `${FLINK_BASE_DIR}/conf.default`       |
+| `FLINK_CONF_FILE`        | Flink configuration file name.                                                                                              | `config.yaml`                          |
+| `FLINK_CONF_FILE_PATH`   | Flink configuration file path.                                                                                              | `${FLINK_CONF_DIR}/${FLINK_CONF_FILE}` |
+| `FLINK_VOLUME_DIR`       | Flink directory for mounted configuration files.                                                                            | `${BITNAMI_VOLUME_DIR}/flink`          |
+| `FLINK_DATA_TO_PERSIST`  | Files to persist relative to the Flink installation directory. To provide multiple values, separate them with a whitespace. | `conf plugins`                         |
+| `FLINK_DAEMON_USER`      | Flink daemon system user.                                                                                                   | `flink`                                |
+| `FLINK_DAEMON_GROUP`     | Flink daemon system group.                                                                                                  | `flink`                                |
 
 ### Running commands
 
@@ -78,6 +108,12 @@ $ Usage: FLINK_MODE=(jobmanager|standalone-job|taskmanager|history-server)
 
 Check the [official Apache Flink documentation](https://flink.apache.org//docs) for more information.
 
+## Using `docker-compose.yaml`
+
+Please be aware this file has not undergone internal testing. Consequently, we advise its use exclusively for development or testing purposes. For production-ready deployments, we highly recommend utilizing its associated [Bitnami Helm chart](https://github.com/bitnami/charts/tree/main/bitnami/flink).
+
+If you detect any issue in the `docker-compose.yaml` file, feel free to report it or contribute with a fix by following our [Contributing Guidelines](https://github.com/bitnami/containers/blob/main/CONTRIBUTING.md).
+
 ## Contributing
 
 We'd love for you to contribute to this container. You can request new features by creating an [issue](https://github.com/bitnami/containers/issues) or submitting a [pull request](https://github.com/bitnami/containers/pulls) with your contribution.
@@ -88,7 +124,7 @@ If you encountered a problem running this container, you can file an [issue](htt
 
 ## License
 
-Copyright &copy; 2023 Bitnami
+Copyright &copy; 2024 Broadcom. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

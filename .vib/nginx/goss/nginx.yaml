@@ -1,3 +1,6 @@
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
+
 file:
   # Checks configured symlinks
   /opt/bitnami/nginx/conf/bitnami/certs:
@@ -25,19 +28,14 @@ file:
   /opt/bitnami/nginx/conf/nginx.conf:
     exists: true
     filetype: file
-    contains:
+    contents:
       - /listen.*{{ .Vars.ports.http }}/
   /opt/bitnami/nginx/conf/fastcgi_params:
     exists: true
     filetype: file
-    contains:
+    contents:
       - /Unset.*HTTP_PROXY/
 command:
-  check-app-version:
-    exec: {{ .Vars.version.bin_name }} {{ .Vars.version.flag }} 2>&1
-    exit-status: 0
-    stdout:
-    - {{ .Env.APP_VERSION }}
   test-config:
     exec: nginx -t
     exit-status: 0
@@ -47,11 +45,11 @@ command:
     exit-status: 0
     stdout:
     {{ range $added_module := .Vars.modules.added }}
-      - nginx-module-{{ $added_module }}
+      - "nginx-module-{{ $added_module }}"
     {{ end }}
     {{ range $enabled_module := .Vars.modules.enabled }}
-      - with-{{ $enabled_module }}_module
+      - "with-{{ $enabled_module }}_module"
     {{ end }}
     {{ range $additional_config := .Vars.config_opts }}
-      - with-{{ $additional_config }}
+      - "with-{{ $additional_config }}"
     {{ end }}

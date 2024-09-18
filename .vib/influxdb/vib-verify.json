@@ -17,7 +17,10 @@
                 "name": "{VIB_ENV_CONTAINER}",
                 "tag": "{VIB_ENV_TAG}"
               }
-            }
+            },
+            "architectures": [
+              "linux/amd64"
+            ]
           }
         },
         {
@@ -48,7 +51,7 @@
         {
           "action_id": "trivy",
           "params": {
-            "threshold": "CRITICAL",
+            "threshold": "LOW",
             "vuln_type": [
               "OS"
             ]

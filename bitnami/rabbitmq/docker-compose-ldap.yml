@@ -1,8 +1,9 @@
-version: '2'
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
 
 services:
   rabbitmq:
-    image: docker.io/bitnami/rabbitmq:3.11
+    image: docker.io/bitnami/rabbitmq:3.13
     ports:
       - '4369:4369'
       - '5551:5551'

@@ -1,4 +1,4 @@
-# Spring Cloud Data Flow packaged by Bitnami
+# Bitnami package for Spring Cloud Data Flow
 
 ## What is Spring Cloud Data Flow?
 
@@ -8,11 +8,8 @@
 
 ## TL;DR
 
-### Docker Compose
-
 ```console
-curl -sSL https://raw.githubusercontent.com/bitnami/containers/main/bitnami/spring-cloud-dataflow/docker-compose.yml > docker-compose.yml
-docker-compose up -d
+docker run --name spring-cloud-dataflow bitnami/spring-cloud-dataflow:latest
 ```
 
 ## Why use Bitnami Images?
@@ -20,9 +17,11 @@ docker-compose up -d
 * Bitnami closely tracks upstream source changes and promptly publishes new versions of this image using our automated systems.
 * With Bitnami images the latest bug fixes and features are available as soon as possible.
 * Bitnami containers, virtual machines and cloud images use the same components and configuration approach - making it easy to switch between formats based on your project needs.
-* All our images are based on [minideb](https://github.com/bitnami/minideb) a minimalist Debian based container image which gives you a small base container image and the familiarity of a leading Linux distribution.
-* All Bitnami images available in Docker Hub are signed with [Docker Content Trust (DCT)](https://docs.docker.com/engine/security/trust/content_trust/). You can use `DOCKER_CONTENT_TRUST=1` to verify the integrity of the images.
+* All our images are based on [**minideb**](https://github.com/bitnami/minideb) -a minimalist Debian based container image that gives you a small base container image and the familiarity of a leading Linux distribution- or **scratch** -an explicitly empty image-.
+* All Bitnami images available in Docker Hub are signed with [Notation](https://notaryproject.dev/). [Check this post](https://blog.bitnami.com/2024/03/bitnami-packaged-containers-and-helm.html) to know how to verify the integrity of the images.
 * Bitnami container images are released on a regular basis with the latest distribution packages available.
+
+Looking to use Spring Cloud Data Flow in production? Try [VMware Tanzu Application Catalog](https://bitnami.com/enterprise), the commercial edition of the Bitnami catalog.
 
 ## How to deploy Data Flow in Kubernetes?
 
@@ -30,11 +29,11 @@ Deploying Bitnami applications as Helm Charts is the easiest way to get started 
 
 ## Why use a non-root container?
 
-Non-root container images add an extra layer of security and are generally recommended for production environments. However, because they run as a non-root user, privileged tasks are typically off-limits. Learn more about non-root containers [in our docs](https://docs.bitnami.com/tutorials/work-with-non-root-containers/).
+Non-root container images add an extra layer of security and are generally recommended for production environments. However, because they run as a non-root user, privileged tasks are typically off-limits. Learn more about non-root containers [in our docs](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-work-with-non-root-containers-index.html).
 
 ## Supported tags and respective `Dockerfile` links
 
-Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.bitnami.com/tutorials/understand-rolling-tags-containers/).
+Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-understand-rolling-tags-containers-index.html).
 
 You can see the equivalence between the different tags by taking a look at the `tags-info.yaml` file present in the branch folder, i.e `bitnami/ASSET/BRANCH/DISTRO/tags-info.yaml`.
 
@@ -64,9 +63,37 @@ docker build -t bitnami/APP:latest .
 
 ## Configuration
 
-You can use some environment variable in order to configure the deployment of spring cloud data flow.
+### Environment variables
 
-### Configuring database
+#### Customizable environment variables
+
+| Name                                                | Description                                                                                  | Default Value                                                                                   |
+|-----------------------------------------------------|----------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
+| `SERVER_PORT`                                       | Custom port number to use for the SPRING CLOUD DATAFLOW Server service.                      | `nil`                                                                                           |
+| `SPRING_CLOUD_CONFIG_ENABLED`                       | Whether to load config using Spring Cloud Config Servie.                                     | `false`                                                                                         |
+| `SPRING_CLOUD_KUBERNETES_SECRETS_ENABLE_API`        | Whether to load config using Kubernetes API.                                                 | `false`                                                                                         |
+| `SPRING_CLOUD_KUBERNETES_CONFIG_NAME`               | Name of the ConfigMap that contains the configuration.                                       | `nil`                                                                                           |
+| `SPRING_CLOUD_KUBERNETES_SECRETS_PATHS`             | Paths where the secrets are going to be mount.                                               | `nil`                                                                                           |
+| `SPRING_CLOUD_DATAFLOW_FEATURES_STREAMS_ENABLED`    | Whether enable stream feature in dataflow. It need SPRING_CLOUD_SKIPPER_CLIENT_SERVER_URI    | `false`                                                                                         |
+| `SPRING_CLOUD_DATAFLOW_FEATURES_TASKS_ENABLED`      | Whether enable tasks feature in dataflow. It need SPRING_CLOUD_SKIPPER_CLIENT_SERVER_URI     | `false`                                                                                         |
+| `SPRING_CLOUD_DATAFLOW_FEATURES_SCHEDULES_ENABLED`  | Whether enable schedules feature in dataflow. It need SPRING_CLOUD_SKIPPER_CLIENT_SERVER_URI | `false`                                                                                         |
+| `SPRING_CLOUD_SKIPPER_CLIENT_SERVER_URI`            | Skipper server URI                                                                           | `nil`                                                                                           |
+| `SPRING_CLOUD_DATAFLOW_TASK_COMPOSEDTASKRUNNER_URI` | Workaround for https://github.com/spring-cloud/spring-cloud-dataflow/issues/5072             | `maven://org.springframework.cloud:spring-cloud-dataflow-composed-task-runner:${APP_VERSION:-}` |
+| `JAVA_OPTS`                                         | JVM options                                                                                  | `nil`                                                                                           |
+
+#### Read-only environment variables
+
+| Name                                 | Description                                                       | Value                                               |
+|--------------------------------------|-------------------------------------------------------------------|-----------------------------------------------------|
+| `SPRING_CLOUD_DATAFLOW_BASE_DIR`     | Base path for SPRING CLOUD DATAFLOW files.                        | `${BITNAMI_ROOT_DIR}/spring-cloud-dataflow`         |
+| `SPRING_CLOUD_DATAFLOW_VOLUME_DIR`   | SPRING CLOUD DATAFLOW directory for persisted files.              | `${BITNAMI_VOLUME_DIR}/spring-cloud-dataflow`       |
+| `SPRING_CLOUD_DATAFLOW_CONF_DIR`     | SPRING CLOUD DATAFLOW configuration directory.                    | `${SPRING_CLOUD_DATAFLOW_BASE_DIR}/conf`            |
+| `SPRING_CLOUD_DATAFLOW_CONF_FILE`    | Main SPRING CLOUD DATAFLOW configuration file.                    | `${SPRING_CLOUD_DATAFLOW_CONF_DIR}/application.yml` |
+| `SPRING_CLOUD_DATAFLOW_M2_DIR`       | SPRING CLOUD DATAFLOW maven root dir.                             | `/.m2`                                              |
+| `SPRING_CLOUD_DATAFLOW_DAEMON_USER`  | Users that will execute the SPRING CLOUD DATAFLOW Server process. | `dataflow`                                          |
+| `SPRING_CLOUD_DATAFLOW_DAEMON_GROUP` | Group that will execute the SPRING CLOUD DATAFLOW Server process. | `dataflow`                                          |
+
+#### Configuring database
 
 A relational database is used to store stream and task definitions as well as the state of executed tasks. Spring Cloud Data Flow provides schemas for H2, MySQL, Oracle, PostgreSQL, Db2, and SQL Server. Use the following environment to configure the connection.
 
@@ -75,7 +102,7 @@ A relational database is used to store stream and task definitions as well as th
 * SPRING_DATASOURCE_PASSWORD=bn_dataflow
 * SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.mariadb.jdbc.Driver
 
-### Configuring additional features
+#### Configuring additional features
 
 Spring Cloud Data Flow Server offers specific set of features that can be enabled/disabled when launching.
 
@@ -84,7 +111,7 @@ Spring Cloud Data Flow Server offers specific set of features that can be enable
 
 In the same way, you might need to customize the JVM. Use the `JAVA_OPTS` environment variable for this purpose.
 
-### Configuring stream platform
+#### Configuring stream platform
 
 In order to deploy streams using data flow you will require [Spring Cloud Skipper](https://github.com/bitnami/containers/blob/main/bitnami/spring-cloud-skipper) and one of the following messaging platforms. Please add the following environment variable to point to a different skipper endpoint.
 
@@ -106,6 +133,12 @@ In order to deploy streams using data flow you will require [Spring Cloud Skippe
 
 Consult the [spring-cloud-dataflow Reference Documentation](https://docs.spring.io/spring-cloud-dataflow/docs/current/reference/htmlsingle/#configuration-local) to find the completed list of documentation.
 
+## Using `docker-compose.yaml`
+
+Please be aware this file has not undergone internal testing. Consequently, we advise its use exclusively for development or testing purposes. For production-ready deployments, we highly recommend utilizing its associated [Bitnami Helm chart](https://github.com/bitnami/charts/tree/main/bitnami/spring-cloud-dataflow).
+
+If you detect any issue in the `docker-compose.yaml` file, feel free to report it or contribute with a fix by following our [Contributing Guidelines](https://github.com/bitnami/containers/blob/main/CONTRIBUTING.md).
+
 ## Contributing
 
 We'd love for you to contribute to this container. You can request new features by creating an [issue](https://github.com/bitnami/containers/issues) or submitting a [pull request](https://github.com/bitnami/containers/pulls) with your contribution.
@@ -116,7 +149,7 @@ If you encountered a problem running this container, you can file an [issue](htt
 
 ## License
 
-Copyright &copy; 2023 Bitnami
+Copyright &copy; 2024 Broadcom. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

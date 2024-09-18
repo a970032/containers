@@ -1,4 +1,0 @@
-version: '2'
-services:
-  grafana-mimir:
-    image: docker.io/bitnami/grafana-mimir:2

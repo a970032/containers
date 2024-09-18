@@ -1,4 +1,4 @@
-# Grafana packaged by Bitnami
+# Bitnami package for Grafana
 
 ## What is Grafana?
 
@@ -18,9 +18,11 @@ docker run --name grafana bitnami/grafana:latest
 * Bitnami closely tracks upstream source changes and promptly publishes new versions of this image using our automated systems.
 * With Bitnami images the latest bug fixes and features are available as soon as possible.
 * Bitnami containers, virtual machines and cloud images use the same components and configuration approach - making it easy to switch between formats based on your project needs.
-* All our images are based on [minideb](https://github.com/bitnami/minideb) a minimalist Debian based container image which gives you a small base container image and the familiarity of a leading Linux distribution.
-* All Bitnami images available in Docker Hub are signed with [Docker Content Trust (DCT)](https://docs.docker.com/engine/security/trust/content_trust/). You can use `DOCKER_CONTENT_TRUST=1` to verify the integrity of the images.
+* All our images are based on [**minideb**](https://github.com/bitnami/minideb) -a minimalist Debian based container image that gives you a small base container image and the familiarity of a leading Linux distribution- or **scratch** -an explicitly empty image-.
+* All Bitnami images available in Docker Hub are signed with [Notation](https://notaryproject.dev/). [Check this post](https://blog.bitnami.com/2024/03/bitnami-packaged-containers-and-helm.html) to know how to verify the integrity of the images.
 * Bitnami container images are released on a regular basis with the latest distribution packages available.
+
+Looking to use Grafana in production? Try [VMware Tanzu Application Catalog](https://bitnami.com/enterprise), the commercial edition of the Bitnami catalog.
 
 ## How to deploy Grafana in Kubernetes?
 
@@ -30,11 +32,11 @@ Bitnami containers can be used with [Kubeapps](https://kubeapps.dev/) for deploy
 
 ## Why use a non-root container?
 
-Non-root container images add an extra layer of security and are generally recommended for production environments. However, because they run as a non-root user, privileged tasks are typically off-limits. Learn more about non-root containers [in our docs](https://docs.bitnami.com/tutorials/work-with-non-root-containers/).
+Non-root container images add an extra layer of security and are generally recommended for production environments. However, because they run as a non-root user, privileged tasks are typically off-limits. Learn more about non-root containers [in our docs](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-work-with-non-root-containers-index.html).
 
 ## Supported tags and respective `Dockerfile` links
 
-Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.bitnami.com/tutorials/understand-rolling-tags-containers/).
+Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-understand-rolling-tags-containers-index.html).
 
 You can see the equivalence between the different tags by taking a look at the `tags-info.yaml` file present in the branch folder, i.e `bitnami/ASSET/BRANCH/DISTRO/tags-info.yaml`.
 
@@ -90,6 +92,45 @@ We can launch another containers using the same flag (`--network NETWORK`) in th
 
 ## Configuration
 
+### Environment variables
+
+#### Customizable environment variables
+
+| Name                          | Description                                                                          | Default Value                           |
+|-------------------------------|--------------------------------------------------------------------------------------|-----------------------------------------|
+| `GRAFANA_TMP_DIR`             | Grafana directory for temporary runtime files.                                       | `${GRAFANA_BASE_DIR}/tmp`               |
+| `GRAFANA_PID_FILE`            | Grafana PID file.                                                                    | `${GRAFANA_TMP_DIR}/grafana.pid`        |
+| `GRAFANA_DEFAULT_CONF_DIR`    | Grafana directory for default plugins.                                               | `${GRAFANA_BASE_DIR}/conf.default`      |
+| `GRAFANA_DEFAULT_PLUGINS_DIR` | Grafana directory for default configuration files.                                   | `${GRAFANA_BASE_DIR}/default-plugins`   |
+| `GF_PATHS_HOME`               | Grafana home directory.                                                              | `$GRAFANA_BASE_DIR`                     |
+| `GF_PATHS_CONFIG`             | Grafana configuration file.                                                          | `${GRAFANA_BASE_DIR}/conf/grafana.ini`  |
+| `GF_PATHS_DATA`               | Grafana directory for data files.                                                    | `${GRAFANA_BASE_DIR}/data`              |
+| `GF_PATHS_LOGS`               | Grafana directory for log files.                                                     | `${GRAFANA_BASE_DIR}/logs`              |
+| `GF_PATHS_PLUGINS`            | Grafana directory for plugins.                                                       | `${GF_PATHS_DATA}/plugins`              |
+| `GF_PATHS_PROVISIONING`       | Grafana directory for provisioning configurations.                                   | `${GRAFANA_BASE_DIR}/conf/provisioning` |
+| `GF_INSTALL_PLUGINS`          | Grafana plugins to install                                                           | `nil`                                   |
+| `GF_INSTALL_PLUGINS_SKIP_TLS` | Whether to skip TLS certificate verification when installing plugins                 | `yes`                                   |
+| `GF_FEATURE_TOGGLES`          | Comma-separated list of Grafana feature toggles.                                     | `nil`                                   |
+| `GRAFANA_MIGRATION_LOCK`      | Enable the migration lock mechanism to avoid issues caused by concurrent migrations. | `false`                                 |
+| `GRAFANA_SLEEP_TIME`          | Sleep time between migration status check attempts.                                  | `10`                                    |
+| `GRAFANA_RETRY_ATTEMPTS`      | Number of retries to check migration status.                                         | `12`                                    |
+
+#### Read-only environment variables
+
+| Name                       | Description                                                 | Value                           |
+|----------------------------|-------------------------------------------------------------|---------------------------------|
+| `GRAFANA_BASE_DIR`         | Grafana installation directory.                             | `${BITNAMI_ROOT_DIR}/grafana`   |
+| `GRAFANA_BIN_DIR`          | Grafana directory for binary executables.                   | `${GRAFANA_BASE_DIR}/bin`       |
+| `GRAFANA_CONF_DIR`         | Grafana directory for configuration.                        | `${GRAFANA_BASE_DIR}/conf`      |
+| `GRAFANA_DAEMON_USER`      | Grafana system user.                                        | `grafana`                       |
+| `GRAFANA_DAEMON_GROUP`     | Grafana system group.                                       | `grafana`                       |
+| `GF_VOLUME_DIR`            | Grafana volume directory.                                   | `${BITNAMI_VOLUME_DIR}/grafana` |
+| `GF_OP_PATHS_CONFIG`       | Grafana Operator configuration directory.                   | `/etc/grafana/grafana.ini`      |
+| `GF_OP_PATHS_DATA`         | Grafana Operator directory for data files.                  | `/var/lib/grafana`              |
+| `GF_OP_PATHS_LOGS`         | Grafana Operator directory for log files.                   | `/var/log/grafana`              |
+| `GF_OP_PATHS_PROVISIONING` | Grafana Operator directory for provisioning configurations. | `/etc/grafana/provisioning`     |
+| `GF_OP_PLUGINS_INIT_DIR`   | Grafana Operator directory for plugins.                     | `/opt/plugins`                  |
+
 ### Dev config
 
 Update the `grafana.ini` configuration file in the `/opt/bitnami/grafana/conf` directory to override default configuration options. You only need to add the options you want to override. Config files are applied in the order of:
@@ -126,7 +167,7 @@ grafana:
 You can customize this image and include the plugins you desire editing the list of plugins avilable in the script (see the variable "grafana_plugin_list") and build your own image as shown below:
 
 ```console
-cd 8/debian-11
+cd 10/debian-12
 docker build -t your-custom-grafana .
 ```
 
@@ -256,6 +297,12 @@ You can still build your custom image adding your custom plugins or install them
 
 * Grafana doesn't ship the [`grafana-image-renderer` plugin](https://github.com/grafana/grafana-image-renderer/) by default anymore since it's not compatible with K8s distros with IPv6 disable. Instead, the `GF_INSTALL_PLUGINS` environment variable is set by default including this plugin so it's installed during the container's initialization, users can easily avoid it by overwriting the environment variable.
 
+## Using `docker-compose.yaml`
+
+Please be aware this file has not undergone internal testing. Consequently, we advise its use exclusively for development or testing purposes. For production-ready deployments, we highly recommend utilizing its associated [Bitnami Helm chart](https://github.com/bitnami/charts/tree/main/bitnami/grafana).
+
+If you detect any issue in the `docker-compose.yaml` file, feel free to report it or contribute with a fix by following our [Contributing Guidelines](https://github.com/bitnami/containers/blob/main/CONTRIBUTING.md).
+
 ## Contributing
 
 We'd love for you to contribute to this container. You can request new features by creating an [issue](https://github.com/bitnami/containers/issues) or submitting a [pull request](https://github.com/bitnami/containers/pulls) with your contribution.
@@ -266,7 +313,7 @@ If you encountered a problem running this container, you can file an [issue](htt
 
 ## License
 
-Copyright &copy; 2023 Bitnami
+Copyright &copy; 2024 Broadcom. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

@@ -1,4 +1,4 @@
-# PostgreSQL HA packaged by Bitnami
+# Bitnami package for PostgreSQL HA
 
 ## What is PostgreSQL HA?
 
@@ -13,13 +13,6 @@ Trademarks: This software listing is packaged by Bitnami. The respective tradema
 docker run --name postgresql-repmgr bitnami/postgresql-repmgr:latest
 ```
 
-### Docker Compose
-
-```console
-curl -sSL https://raw.githubusercontent.com/bitnami/containers/main/bitnami/postgresql-repmgr/docker-compose.yml > docker-compose.yml
-docker-compose up -d
-```
-
 You can find the default credentials and available configuration options in the [Environment Variables](#environment-variables) section.
 
 ## Why use Bitnami Images?
@@ -27,13 +20,15 @@ You can find the default credentials and available configuration options in the 
 * Bitnami closely tracks upstream source changes and promptly publishes new versions of this image using our automated systems.
 * With Bitnami images the latest bug fixes and features are available as soon as possible.
 * Bitnami containers, virtual machines and cloud images use the same components and configuration approach - making it easy to switch between formats based on your project needs.
-* All our images are based on [minideb](https://github.com/bitnami/minideb) a minimalist Debian based container image which gives you a small base container image and the familiarity of a leading Linux distribution.
-* All Bitnami images available in Docker Hub are signed with [Docker Content Trust (DCT)](https://docs.docker.com/engine/security/trust/content_trust/). You can use `DOCKER_CONTENT_TRUST=1` to verify the integrity of the images.
+* All our images are based on [**minideb**](https://github.com/bitnami/minideb) -a minimalist Debian based container image that gives you a small base container image and the familiarity of a leading Linux distribution- or **scratch** -an explicitly empty image-.
+* All Bitnami images available in Docker Hub are signed with [Notation](https://notaryproject.dev/). [Check this post](https://blog.bitnami.com/2024/03/bitnami-packaged-containers-and-helm.html) to know how to verify the integrity of the images.
 * Bitnami container images are released on a regular basis with the latest distribution packages available.
+
+Looking to use PostgreSQL HA in production? Try [VMware Tanzu Application Catalog](https://bitnami.com/enterprise), the commercial edition of the Bitnami catalog.
 
 ## Why use a non-root container?
 
-Non-root container images add an extra layer of security and are generally recommended for production environments. However, because they run as a non-root user, privileged tasks are typically off-limits. Learn more about non-root containers [in our docs](https://docs.bitnami.com/tutorials/work-with-non-root-containers/).
+Non-root container images add an extra layer of security and are generally recommended for production environments. However, because they run as a non-root user, privileged tasks are typically off-limits. Learn more about non-root containers [in our docs](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-work-with-non-root-containers-index.html).
 
 ## How to deploy Postgresql-repmgr in Kubernetes?
 
@@ -43,7 +38,7 @@ Bitnami containers can be used with [Kubeapps](https://kubeapps.dev/) for deploy
 
 ## Supported tags and respective `Dockerfile` links
 
-Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.bitnami.com/tutorials/understand-rolling-tags-containers/).
+Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-understand-rolling-tags-containers-index.html).
 
 You can see the equivalence between the different tags by taking a look at the `tags-info.yaml` file present in the branch folder, i.e `bitnami/ASSET/BRANCH/DISTRO/tags-info.yaml`.
 
@@ -510,56 +505,204 @@ docker-compose restart pg-0
 docker-compose restart pg-1
 ```
 
+### Adding extra services to base docker-compose.yaml
+
+It is possible to add extra services to the provided `docker-compose.yaml` file, like [a witness node](https://repmgr.org/docs/4.3/repmgrd-witness-server.html). When adding the new service, please take into account the cluster set up process relays on the `REPMGR_NODE_ID_START_SEED` environment variable plus the service ID in the name (if present, or zero (`0`) by default) to assign cluster's ID to each service/node involved on it. In the case of docker-compose based clusters, this may lead to collisions in the internal IDs in case two or more services share the same ID in their names, making the service initialization process to fail. This isn't an issue on Kubernetes environments, as the Kubernetes controller enumerates the pods with different ID numbers by default.
+
+We recommend setting a different value for the `REPMGR_NODE_ID_START_SEED` in those nodes, or ensuring no services names use repeated numbers. Find below a sample service for a witness service:
+
+```yaml
+  pg-0:
+  (...)
+  pg-1:
+  (...)
+  pgw-0:
+    image: bitnami/postgresql-repmgr:latest
+    ports:
+      - 6439:5432
+    volumes:
+      - /docker/local/database_repmgr2/pgw-0:/bitnami/postgresql
+    environment:
+      (...)
+      - REPMGR_PRIMARY_HOST=pg-0
+      - REPMGR_PRIMARY_PORT=5432
+      - REPMGR_PARTNER_NODES=pg-0:5432,pg-1:5432,pgw-0:5432
+      - REPMGR_NODE_NAME=pgw-0
+      - REPMGR_NODE_NETWORK_NAME=pgw-0
+      - REPMGR_PORT_NUMBER=5432
+      - REPMGR_NODE_TYPE=witness
+      # Avoid naming collision with 'pg-0' service
+      - REPMGR_NODE_ID_START_SEED=2000
+(...)
+```
+
+Refer to [issues/27124](https://github.com/bitnami/containers/issues/27124) for further details on this.
+
 ### Environment variables
 
-Please see the list of environment variables available in the Bitnami PostgreSQL HA container in the next table:
+#### Customizable environment variables
 
-| Environment Variable                   | Default value |
-|:---------------------------------------|:--------------|
-| REPMGR_NODE_ID                         | `nil`         |
-| REPMGR_NODE_ID_START_SEED              | `1000`        |
-| REPMGR_NODE_NAME                       | `nil`         |
-| REPMGR_NODE_NETWORK_NAME               | `nil`         |
-| REPMGR_NODE_PRIORITY                   | `100`         |
-| REPMGR_PARTNER_NODES                   | `nil`         |
-| REPMGR_PRIMARY_HOST                    | `nil`         |
-| REPMGR_NODE_LOCATION                   | `default`     |
-| REPMGR_PRIMARY_PORT                    | `5432`        |
-| REPMGR_PORT_NUMBER                     | `5432`        |
-| REPMGR_LOG_LEVEL                       | `NOTICE`      |
-| REPMGR_START_OPTIONS                   | `nil`         |
-| REPMGR_CONNECT_TIMEOUT                 | `5`           |
-| REPMGR_RECONNECT_ATTEMPTS              | `3`           |
-| REPMGR_RECONNECT_INTERVAL              | `5`           |
-| REPMGR_USE_REPLICATION_SLOTS           | `1`           |
-| REPMGR_MASTER_RESPONSE_TIMEOUT         | `20`          |
-| REPMGR_DEGRADED_MONITORING_TIMEOUT     | `5`           |
-| REPMGR_USERNAME                        | `repmgr`      |
-| REPMGR_DATABASE                        | `repmgr`      |
-| REPMGR_PASSWORD                        | `nil`         |
-| REPMGR_PASSWORD_FILE                   | `nil`         |
-| REPMGR_FENCE_OLD_PRIMARY               | `no`          |
-| REPMGR_FAILOVER                        | `automatic`   |
-| REPMGR_CHILD_NODES_CHECK_INTERVAL      | `5`           |
-| REPMGR_CHILD_NODES_CONNECTED_MIN_COUNT | `1`           |
-| REPMGR_CHILD_NODES_DISCONNECT_TIMEOUT  | `30`          |
-| REPMGR_USE_PASSFILE                    | `nil`         |
-| POSTGRESQL_USERNAME                    | `postgres`    |
-| POSTGRESQL_DATABASE                    | `nil`         |
-| POSTGRESQL_PASSWORD                    | `nil`         |
-| POSTGRESQL_PASSWORD_FILE               | `nil`         |
-| POSTGRESQL_POSTGRES_PASSWORD           | `nil`         |
-| POSTGRESQL_POSTGRES_PASSWORD_FILE      | `nil`         |
-| POSTGRESQL_PORT_NUMBER                 | `5432`        |
-| POSTGRESQL_INITDB_ARGS                 | `nil`         |
-| POSTGRESQL_PGCTLTIMEOUT                | `60`          |
-| POSTGRESQL_SHUTDOWN_MODE               | `fast`        |
-| POSTGRESQL_ENABLE_TLS                  | `no`          |
-| POSTGRESQL_TLS_CERT_FILE               | `nil`         |
-| POSTGRESQL_TLS_KEY_FILE                | `nil`         |
-| POSTGRESQL_TLS_CA_FILE                 | `nil`         |
-| POSTGRESQL_TLS_CRL_FILE                | `nil`         |
-| POSTGRESQL_TLS_PREFER_SERVER_CIPHERS   | `yes`         |
+| Name                                       | Description                                                                                      | Default Value                              |
+|--------------------------------------------|--------------------------------------------------------------------------------------------------|--------------------------------------------|
+| `POSTGRESQL_VOLUME_DIR`                    | Persistence base directory                                                                       | `/bitnami/postgresql`                      |
+| `POSTGRESQL_DATA_DIR`                      | PostgreSQL data directory                                                                        | `${POSTGRESQL_VOLUME_DIR}/data`            |
+| `POSTGRESQL_EXTRA_FLAGS`                   | Extra flags for PostgreSQL initialization                                                        | `nil`                                      |
+| `POSTGRESQL_INIT_MAX_TIMEOUT`              | Maximum initialization waiting timeout                                                           | `60`                                       |
+| `POSTGRESQL_PGCTLTIMEOUT`                  | Maximum waiting timeout for pg_ctl commands                                                      | `60`                                       |
+| `POSTGRESQL_SHUTDOWN_MODE`                 | Default mode for pg_ctl stop command                                                             | `fast`                                     |
+| `POSTGRESQL_CLUSTER_APP_NAME`              | Replication cluster default application name                                                     | `walreceiver`                              |
+| `POSTGRESQL_DATABASE`                      | Default PostgreSQL database                                                                      | `postgres`                                 |
+| `POSTGRESQL_INITDB_ARGS`                   | Optional args for PostreSQL initdb operation                                                     | `nil`                                      |
+| `ALLOW_EMPTY_PASSWORD`                     | Allow password-less access                                                                       | `no`                                       |
+| `POSTGRESQL_INITDB_WAL_DIR`                | Optional init db wal directory                                                                   | `nil`                                      |
+| `POSTGRESQL_MASTER_HOST`                   | PostgreSQL master host (used by slaves)                                                          | `nil`                                      |
+| `POSTGRESQL_MASTER_PORT_NUMBER`            | PostgreSQL master host port (used by slaves)                                                     | `5432`                                     |
+| `POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS`      | Number of PostgreSQL replicas that should use synchronous replication                            | `0`                                        |
+| `POSTGRESQL_SYNCHRONOUS_REPLICAS_MODE`     | PostgreSQL synchronous replication mode (values: empty, FIRST, ANY)                              | `nil`                                      |
+| `POSTGRESQL_PORT_NUMBER`                   | PostgreSQL port number                                                                           | `5432`                                     |
+| `POSTGRESQL_ALLOW_REMOTE_CONNECTIONS`      | Modify pg_hba settings so users can access from the outside                                      | `yes`                                      |
+| `POSTGRESQL_REPLICATION_MODE`              | PostgreSQL replication mode (values: master, slave)                                              | `master`                                   |
+| `POSTGRESQL_REPLICATION_USER`              | PostgreSQL replication user                                                                      | `nil`                                      |
+| `POSTGRESQL_SYNCHRONOUS_COMMIT_MODE`       | Enable synchronous replication in slaves (number defined by POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS) | `on`                                       |
+| `POSTGRESQL_FSYNC`                         | Enable fsync in write ahead logs                                                                 | `on`                                       |
+| `POSTGRESQL_USERNAME`                      | PostgreSQL default username                                                                      | `postgres`                                 |
+| `POSTGRESQL_ENABLE_LDAP`                   | Enable LDAP for PostgreSQL authentication                                                        | `no`                                       |
+| `POSTGRESQL_LDAP_URL`                      | PostgreSQL LDAP server url (requires POSTGRESQL_ENABLE_LDAP=yes)                                 | `nil`                                      |
+| `POSTGRESQL_LDAP_PREFIX`                   | PostgreSQL LDAP prefix (requires POSTGRESQL_ENABLE_LDAP=yes)                                     | `nil`                                      |
+| `POSTGRESQL_LDAP_SUFFIX`                   | PostgreSQL LDAP suffix (requires POSTGRESQL_ENABLE_LDAP=yes)                                     | `nil`                                      |
+| `POSTGRESQL_LDAP_SERVER`                   | PostgreSQL LDAP server (requires POSTGRESQL_ENABLE_LDAP=yes)                                     | `nil`                                      |
+| `POSTGRESQL_LDAP_PORT`                     | PostgreSQL LDAP port (requires POSTGRESQL_ENABLE_LDAP=yes)                                       | `nil`                                      |
+| `POSTGRESQL_LDAP_SCHEME`                   | PostgreSQL LDAP scheme (requires POSTGRESQL_ENABLE_LDAP=yes)                                     | `nil`                                      |
+| `POSTGRESQL_LDAP_TLS`                      | PostgreSQL LDAP tls setting (requires POSTGRESQL_ENABLE_LDAP=yes)                                | `nil`                                      |
+| `POSTGRESQL_LDAP_BASE_DN`                  | PostgreSQL LDAP base DN settings (requires POSTGRESQL_ENABLE_LDAP=yes)                           | `nil`                                      |
+| `POSTGRESQL_LDAP_BIND_DN`                  | PostgreSQL LDAP bind DN settings (requires POSTGRESQL_ENABLE_LDAP=yes)                           | `nil`                                      |
+| `POSTGRESQL_LDAP_BIND_PASSWORD`            | PostgreSQL LDAP bind password (requires POSTGRESQL_ENABLE_LDAP=yes)                              | `nil`                                      |
+| `POSTGRESQL_LDAP_SEARCH_ATTR`              | PostgreSQL LDAP search attribute (requires POSTGRESQL_ENABLE_LDAP=yes)                           | `nil`                                      |
+| `POSTGRESQL_LDAP_SEARCH_FILTER`            | PostgreSQL LDAP search filter (requires POSTGRESQL_ENABLE_LDAP=yes)                              | `nil`                                      |
+| `POSTGRESQL_INITSCRIPTS_USERNAME`          | Username for the psql scripts included in /docker-entrypoint.initdb                              | `$POSTGRESQL_USERNAME`                     |
+| `POSTGRESQL_PASSWORD`                      | Password for the PostgreSQL created user                                                         | `nil`                                      |
+| `POSTGRESQL_POSTGRES_PASSWORD`             | Password for the PostgreSQL postgres user                                                        | `nil`                                      |
+| `POSTGRESQL_REPLICATION_PASSWORD`          | Password for the PostgreSQL replication user                                                     | `nil`                                      |
+| `POSTGRESQL_INITSCRIPTS_PASSWORD`          | Password for the PostgreSQL init scripts user                                                    | `$POSTGRESQL_PASSWORD`                     |
+| `POSTGRESQL_ENABLE_TLS`                    | Whether to enable TLS for traffic or not                                                         | `no`                                       |
+| `POSTGRESQL_TLS_CERT_FILE`                 | File containing the certificate for the TLS traffic                                              | `nil`                                      |
+| `POSTGRESQL_TLS_KEY_FILE`                  | File containing the key for certificate                                                          | `nil`                                      |
+| `POSTGRESQL_TLS_CA_FILE`                   | File containing the CA of the certificate                                                        | `nil`                                      |
+| `POSTGRESQL_TLS_CRL_FILE`                  | File containing a Certificate Revocation List                                                    | `nil`                                      |
+| `POSTGRESQL_TLS_PREFER_SERVER_CIPHERS`     | Whether to use the server TLS cipher preferences rather than the client                          | `yes`                                      |
+| `POSTGRESQL_SHARED_PRELOAD_LIBRARIES`      | List of libraries to preload at PostgreSQL initialization                                        | `pgaudit`                                  |
+| `POSTGRESQL_PGAUDIT_LOG`                   | Comma-separated list of actions to log with pgaudit                                              | `nil`                                      |
+| `POSTGRESQL_PGAUDIT_LOG_CATALOG`           | Enable pgaudit log catalog (pgaudit.log_catalog setting)                                         | `nil`                                      |
+| `POSTGRESQL_PGAUDIT_LOG_PARAMETER`         | Enable pgaudit log parameter (pgaudit.log_parameter setting)                                     | `nil`                                      |
+| `POSTGRESQL_LOG_CONNECTIONS`               | Add a log entry per user connection                                                              | `nil`                                      |
+| `POSTGRESQL_LOG_DISCONNECTIONS`            | Add a log entry per user disconnection                                                           | `nil`                                      |
+| `POSTGRESQL_LOG_HOSTNAME`                  | Log the client host name when accessing                                                          | `nil`                                      |
+| `POSTGRESQL_CLIENT_MIN_MESSAGES`           | Set log level of errors to send to the client                                                    | `error`                                    |
+| `POSTGRESQL_LOG_LINE_PREFIX`               | Set the format of the log lines                                                                  | `nil`                                      |
+| `POSTGRESQL_LOG_TIMEZONE`                  | Set the timezone                                                                                 | `nil`                                      |
+| `POSTGRESQL_TIMEZONE`                      | Set the log timezone                                                                             | `nil`                                      |
+| `POSTGRESQL_MAX_CONNECTIONS`               | Set the maximum amount of connections                                                            | `nil`                                      |
+| `POSTGRESQL_TCP_KEEPALIVES_IDLE`           | Set the TCP keepalive idle time                                                                  | `nil`                                      |
+| `POSTGRESQL_TCP_KEEPALIVES_INTERVAL`       | Set the TCP keepalive interval time                                                              | `nil`                                      |
+| `POSTGRESQL_TCP_KEEPALIVES_COUNT`          | Set the TCP keepalive count                                                                      | `nil`                                      |
+| `POSTGRESQL_STATEMENT_TIMEOUT`             | Set the SQL statement timeout                                                                    | `nil`                                      |
+| `POSTGRESQL_PGHBA_REMOVE_FILTERS`          | Comma-separated list of strings for removing pg_hba.conf lines (example: md5, local)             | `nil`                                      |
+| `POSTGRESQL_USERNAME_CONNECTION_LIMIT`     | Set the user connection limit                                                                    | `nil`                                      |
+| `POSTGRESQL_POSTGRES_CONNECTION_LIMIT`     | Set the postgres user connection limit                                                           | `nil`                                      |
+| `POSTGRESQL_WAL_LEVEL`                     | Set the write-ahead log level                                                                    | `replica`                                  |
+| `POSTGRESQL_DEFAULT_TOAST_COMPRESSION`     | Set the postgres default compression                                                             | `nil`                                      |
+| `POSTGRESQL_PASSWORD_ENCRYPTION`           | Set the passwords encryption method                                                              | `nil`                                      |
+| `POSTGRESQL_DEFAULT_TRANSACTION_ISOLATION` | Set transaction isolation                                                                        | `nil`                                      |
+| `POSTGRESQL_AUTOCTL_CONF_DIR`              | Path to the configuration dir for the pg_autoctl command                                         | `${POSTGRESQL_AUTOCTL_VOLUME_DIR}/.config` |
+| `POSTGRESQL_AUTOCTL_MODE`                  | pgAutoFailover node type, valid values [monitor, postgres]                                       | `postgres`                                 |
+| `POSTGRESQL_AUTOCTL_MONITOR_HOST`          | Hostname for the monitor component                                                               | `monitor`                                  |
+| `POSTGRESQL_AUTOCTL_HOSTNAME`              | Hostname by which postgres is reachable                                                          | `$(hostname --fqdn)`                       |
+| `REPMGR_DATA_DIR`                          | Replication Manager data directory                                                               | `${REPMGR_VOLUME_DIR}/repmgr/data`         |
+| `REPMGR_NODE_ID`                           | Replication Manager node identifier                                                              | `nil`                                      |
+| `REPMGR_NODE_ID_START_SEED`                | Replication Manager node identifier start seed                                                   | `1000`                                     |
+| `REPMGR_NODE_NAME`                         | Replication Manager node name                                                                    | `$(hostname)`                              |
+| `REPMGR_NODE_NETWORK_NAME`                 | Replication Manager node network name                                                            | `nil`                                      |
+| `REPMGR_NODE_PRIORITY`                     | Replication Manager node priority                                                                | `100`                                      |
+| `REPMGR_NODE_LOCATION`                     | Replication Manager node location                                                                | `default`                                  |
+| `REPMGR_NODE_TYPE`                         | Replication Manager node type                                                                    | `data`                                     |
+| `REPMGR_PORT_NUMBER`                       | Replication Manager port number                                                                  | `5432`                                     |
+| `REPMGR_LOG_LEVEL`                         | Replication Manager logging level                                                                | `NOTICE`                                   |
+| `REPMGR_USE_PGREWIND`                      | (Experimental) Use pg_rewind to synchronize from primary node                                    | `no`                                       |
+| `REPMGR_START_OPTIONS`                     | Options to add when starting the node                                                            | `nil`                                      |
+| `REPMGR_CONNECT_TIMEOUT`                   | Replication Manager node connection timeout (in seconds)                                         | `5`                                        |
+| `REPMGR_RECONNECT_ATTEMPTS`                | Number of attempts to connect to the cluster before failing                                      | `3`                                        |
+| `REPMGR_RECONNECT_INTERVAL`                | Replication Manager node reconnect interval (in seconds)                                         | `5`                                        |
+| `REPMGR_PARTNER_NODES`                     | List of other Replication Manager nodes in the cluster                                           | `nil`                                      |
+| `REPMGR_PRIMARY_HOST`                      | Replication Manager cluster primary node                                                         | `nil`                                      |
+| `REPMGR_PRIMARY_PORT`                      | Replication Manager cluster primary node port                                                    | `5432`                                     |
+| `REPMGR_USE_REPLICATION_SLOTS`             | Replication Manager replication slots                                                            | `1`                                        |
+| `REPMGR_MASTER_RESPONSE_TIMEOUT`           | Time (in seconds) to wait for the master to reply                                                | `20`                                       |
+| `REPMGR_MONITORING_HISTORY`                | Replication Manager flag to enable monitoring history                                            | `no`                                       |
+| `REPMGR_PRIMARY_VISIBILITY_CONSENSUS`      | Replication Manager flag to enable consult each other to build a quorum                          | `no`                                       |
+| `REPMGR_MONITOR_INTERVAL_SECS`             | Replication Manager interval at which to write monitoring data                                   | `2`                                        |
+| `REPMGR_DEGRADED_MONITORING_TIMEOUT`       | Replication Manager degraded monitoring timeout                                                  | `5`                                        |
+| `REPMGR_UPGRADE_EXTENSION`                 | Replication Manager upgrade extension                                                            | `no`                                       |
+| `REPMGR_FENCE_OLD_PRIMARY`                 | Replication Manager fence old primary                                                            | `no`                                       |
+| `REPMGR_FAILOVER`                          | Replicatication failover mode                                                                    | `automatic`                                |
+| `REPMGR_CHILD_NODES_CHECK_INTERVAL`        | Replication Manager time interval to check nodes                                                 | `5`                                        |
+| `REPMGR_CHILD_NODES_CONNECTED_MIN_COUNT`   | Replication Manager minimal connected nodes                                                      | `1`                                        |
+| `REPMGR_CHILD_NODES_DISCONNECT_TIMEOUT`    | Replication Manager disconnected nodes tiemout                                                   | `30`                                       |
+| `REPMGR_SWITCH_ROLE`                       | Flag to switch current node role                                                                 | `no`                                       |
+| `REPMGR_CURRENT_PRIMARY_HOST`              | Current primary host                                                                             | `nil`                                      |
+| `REPMGR_USERNAME`                          | Replication manager username                                                                     | `repmgr`                                   |
+| `REPMGR_DATABASE`                          | Replication manager database                                                                     | `repmgr`                                   |
+| `REPMGR_PGHBA_TRUST_ALL`                   | Add trust all in Replication Manager pg_hba.conf                                                 | `no`                                       |
+| `REPMGR_PASSWORD`                          | Replication manager password                                                                     | `nil`                                      |
+| `REPMGR_USE_PASSFILE`                      | Use PGPASSFILE instead of PGPASSWORD                                                             | `nil`                                      |
+| `REPMGR_PASSFILE_PATH`                     | Path to store passfile                                                                           | `$REPMGR_CONF_DIR/.pgpass`                 |
+| `PGCONNECT_TIMEOUT`                        | PostgreSQL connection timeout                                                                    | `10`                                       |
+| `POSTGRESQL_REPLICATION_PASSFILE_PATH`     | Path to store passfile                                                                           | `$REPMGR_PASSFILE_PATH`                    |
+
+#### Read-only environment variables
+
+| Name                                  | Description                                         | Value                                         |
+|---------------------------------------|-----------------------------------------------------|-----------------------------------------------|
+| `POSTGRESQL_BASE_DIR`                 | PostgreSQL installation directory                   | `/opt/bitnami/postgresql`                     |
+| `POSTGRESQL_DEFAULT_CONF_DIR`         | PostgreSQL configuration directory                  | `$POSTGRESQL_BASE_DIR/conf.default`           |
+| `POSTGRESQL_CONF_DIR`                 | PostgreSQL configuration directory                  | `$POSTGRESQL_BASE_DIR/conf`                   |
+| `POSTGRESQL_MOUNTED_CONF_DIR`         | PostgreSQL mounted configuration directory          | `$POSTGRESQL_VOLUME_DIR/conf`                 |
+| `POSTGRESQL_CONF_FILE`                | PostgreSQL configuration file                       | `$POSTGRESQL_CONF_DIR/postgresql.conf`        |
+| `POSTGRESQL_PGHBA_FILE`               | PostgreSQL pg_hba file                              | `$POSTGRESQL_CONF_DIR/pg_hba.conf`            |
+| `POSTGRESQL_RECOVERY_FILE`            | PostgreSQL recovery file                            | `$POSTGRESQL_DATA_DIR/recovery.conf`          |
+| `POSTGRESQL_LOG_DIR`                  | PostgreSQL logs directory                           | `$POSTGRESQL_BASE_DIR/logs`                   |
+| `POSTGRESQL_LOG_FILE`                 | PostgreSQL log file                                 | `$POSTGRESQL_LOG_DIR/postgresql.log`          |
+| `POSTGRESQL_TMP_DIR`                  | PostgreSQL temporary directory                      | `$POSTGRESQL_BASE_DIR/tmp`                    |
+| `POSTGRESQL_PID_FILE`                 | PostgreSQL PID file                                 | `$POSTGRESQL_TMP_DIR/postgresql.pid`          |
+| `POSTGRESQL_BIN_DIR`                  | PostgreSQL executables directory                    | `$POSTGRESQL_BASE_DIR/bin`                    |
+| `POSTGRESQL_INITSCRIPTS_DIR`          | Init scripts directory                              | `/docker-entrypoint-initdb.d`                 |
+| `POSTGRESQL_PREINITSCRIPTS_DIR`       | Pre-init scripts directory                          | `/docker-entrypoint-preinitdb.d`              |
+| `POSTGRESQL_DAEMON_USER`              | PostgreSQL system user                              | `postgres`                                    |
+| `POSTGRESQL_DAEMON_GROUP`             | PostgreSQL system group                             | `postgres`                                    |
+| `POSTGRESQL_AUTOCTL_VOLUME_DIR`       | The pg_autoctl home directory                       | `${POSTGRESQL_VOLUME_DIR}/pgautoctl`          |
+| `POSTGRESQL_PGBACKREST_VOLUME_DIR`    | The pgbackrest home directory                       | `${POSTGRESQL_VOLUME_DIR}/pgbackrest`         |
+| `POSTGRESQL_PGBACKREST_LOGS_DIR`      | The pgbackrest logs directory                       | `${POSTGRESQL_PGBACKREST_VOLUME_DIR}/logs`    |
+| `POSTGRESQL_PGBACKREST_BACKUPS_DIR`   | The pgbackrest backups directory                    | `${POSTGRESQL_PGBACKREST_VOLUME_DIR}/backups` |
+| `POSTGRESQL_PGBACKREST_SPOOL_DIR`     | The pgbackrest spool directory                      | `${POSTGRESQL_PGBACKREST_VOLUME_DIR}/spool`   |
+| `POSTGRESQL_PGBACKREST_CONF_FILE`     | The pgbackrest spool directory                      | `${POSTGRESQL_DATA_DIR}/pgbackrest.conf`      |
+| `POSTGRESQL_FIRST_BOOT`               | Flag for startup (necessary for repmgr)             | `yes`                                         |
+| `NSS_WRAPPER_LIB`                     | Flag for startup (necessary for repmgr)             | `/opt/bitnami/common/lib/libnss_wrapper.so`   |
+| `REPMGR_BASE_DIR`                     | Replication Manager installation directory          | `/opt/bitnami/repmgr`                         |
+| `REPMGR_CONF_DIR`                     | Replication Manager configuration directory         | `$REPMGR_BASE_DIR/conf`                       |
+| `REPMGR_VOLUME_DIR`                   | Persistence base directory                          | `/bitnami/repmgr`                             |
+| `REPMGR_MOUNTED_CONF_DIR`             | Replication Manager mounted configuration directory | `$REPMGR_VOLUME_DIR/conf`                     |
+| `REPMGR_TMP_DIR`                      | Replication Manager temporary directory             | `$REPMGR_BASE_DIR/tmp`                        |
+| `REPMGR_EVENTS_DIR`                   | Replication Manager events directory                | `$REPMGR_BASE_DIR/events`                     |
+| `REPMGR_LOCK_DIR`                     | Replication Manager lock files directory            | `$POSTGRESQL_VOLUME_DIR/lock`                 |
+| `REPMGR_PRIMARY_ROLE_LOCK_FILE_NAME`  | Replication Manager lock file for the primary role  | `$REPMGR_LOCK_DIR/master.lock`                |
+| `REPMGR_STANDBY_ROLE_LOCK_FILE_NAME`  | Replication Manager lock file for the standby node  | `$REPMGR_LOCK_DIR/standby.lock`               |
+| `REPMGR_BIN_DIR`                      | Replication Manager executables directory           | `$REPMGR_BASE_DIR/bin`                        |
+| `REPMGR_CONF_FILE`                    | Replication Manager configuration file              | `$REPMGR_CONF_DIR/repmgr.conf`                |
+| `REPMGR_CURRENT_PRIMARY_PORT`         | Current primary host port                           | `$REPMGR_PRIMARY_PORT`                        |
+| `POSTGRESQL_REPLICATION_USER`         | PostgreSQL connection timeout                       | `$REPMGR_USERNAME`                            |
+| `POSTGRESQL_REPLICATION_PASSWORD`     | PostgreSQL connection timeout                       | `$REPMGR_PASSWORD`                            |
+| `POSTGRESQL_REPLICATION_USE_PASSFILE` | PostgreSQL use PGPASSFILE instead of PGPASSWORD     | `$REPMGR_USE_PASSFILE`                        |
+| `POSTGRESQL_MASTER_HOST`              | PostgreSQL connection timeout                       | `$REPMGR_PRIMARY_HOST`                        |
+| `POSTGRESQL_MASTER_PORT_NUMBER`       | PostgreSQL connection timeout                       | `$REPMGR_PRIMARY_PORT`                        |
 
 ## Logging
 
@@ -645,6 +788,12 @@ docker-compose up pg-1
 
 * Adds Postgis extension to postgresql, version 2.3.x to Postgresiql 9.6 and version 2.5 to 10, 11 and 12.
 
+## Using `docker-compose.yaml`
+
+Please be aware this file has not undergone internal testing. Consequently, we advise its use exclusively for development or testing purposes. For production-ready deployments, we highly recommend utilizing its associated [Bitnami Helm chart](https://github.com/bitnami/charts/tree/main/bitnami/postgresql-ha).
+
+If you detect any issue in the `docker-compose.yaml` file, feel free to report it or contribute with a fix by following our [Contributing Guidelines](https://github.com/bitnami/containers/blob/main/CONTRIBUTING.md).
+
 ## Contributing
 
 We'd love for you to contribute to this container. You can request new features by creating an [issue](https://github.com/bitnami/containers/issues) or submitting a [pull request](https://github.com/bitnami/containers/pulls) with your contribution.
@@ -655,7 +804,7 @@ If you encountered a problem running this container, you can file an [issue](htt
 
 ## License
 
-Copyright &copy; 2023 Bitnami
+Copyright &copy; 2024 Broadcom. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

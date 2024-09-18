@@ -1,8 +1,9 @@
-version: '2'
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
 
 services:
   mongodb-sharded:
-    image: docker.io/bitnami/mongodb-sharded:6.0
+    image: docker.io/bitnami/mongodb-sharded:7.0
     environment:
       - MONGODB_ADVERTISED_HOSTNAME=mongodb-sharded
       - MONGODB_SHARDING_MODE=mongos
@@ -14,7 +15,7 @@ services:
       - "27017:27017"
 
   mongodb-sharded-2:
-    image: docker.io/bitnami/mongodb-sharded:6.0
+    image: docker.io/bitnami/mongodb-sharded:7.0
     environment:
       - MONGODB_ADVERTISED_HOSTNAME=mongodb-sharded-2
       - MONGODB_SHARDING_MODE=mongos
@@ -24,7 +25,7 @@ services:
       - MONGODB_ROOT_PASSWORD=password123
 
   mongodb-shard0-primary:
-    image: docker.io/bitnami/mongodb-sharded:6.0
+    image: docker.io/bitnami/mongodb-sharded:7.0
     environment:
       - MONGODB_ADVERTISED_HOSTNAME=mongodb-shard0-primary
       - MONGODB_SHARDING_MODE=shardsvr
@@ -37,7 +38,7 @@ services:
       - 'shard0_data:/bitnami'
 
   mongodb-shard0-secondary:
-    image: docker.io/bitnami/mongodb-sharded:6.0
+    image: docker.io/bitnami/mongodb-sharded:7.0
     depends_on:
       - mongodb-shard0-primary
     environment:
@@ -52,7 +53,7 @@ services:
       - 'shard0_sec_data:/bitnami'
 
   mongodb-shard1-primary:
-    image: docker.io/bitnami/mongodb-sharded:6.0
+    image: docker.io/bitnami/mongodb-sharded:7.0
     environment:
       - MONGODB_ADVERTISED_HOSTNAME=mongodb-shard1-primary
       - MONGODB_SHARDING_MODE=shardsvr
@@ -65,7 +66,7 @@ services:
       - 'shard1_data:/bitnami'
 
   mongodb-shard1-secondary:
-    image: docker.io/bitnami/mongodb-sharded:6.0
+    image: docker.io/bitnami/mongodb-sharded:7.0
     depends_on:
       - mongodb-shard1-primary
     environment:
@@ -80,7 +81,7 @@ services:
       - 'shard1_sec_data:/bitnami'
 
   mongodb-shard2-primary:
-    image: docker.io/bitnami/mongodb-sharded:6.0
+    image: docker.io/bitnami/mongodb-sharded:7.0
     environment:
       - MONGODB_ADVERTISED_HOSTNAME=mongodb-shard2-primary
       - MONGODB_SHARDING_MODE=shardsvr
@@ -93,7 +94,7 @@ services:
       - 'shard2_data:/bitnami'
 
   mongodb-shard2-secondary:
-    image: docker.io/bitnami/mongodb-sharded:6.0
+    image: docker.io/bitnami/mongodb-sharded:7.0
     depends_on:
       - mongodb-shard2-primary
     environment:
@@ -108,7 +109,7 @@ services:
       - 'shard2_sec_data:/bitnami'
 
   mongodb-cfg-primary:
-    image: docker.io/bitnami/mongodb-sharded:6.0
+    image: docker.io/bitnami/mongodb-sharded:7.0
     environment:
       - MONGODB_ADVERTISED_HOSTNAME=mongodb-cfg-primary
       - MONGODB_SHARDING_MODE=configsvr
@@ -120,7 +121,7 @@ services:
       - 'cfg_data:/bitnami'
 
   mongodb-cfg-secondary:
-    image: docker.io/bitnami/mongodb-sharded:6.0
+    image: docker.io/bitnami/mongodb-sharded:7.0
     depends_on:
       - mongodb-cfg-primary
     environment:

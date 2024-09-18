@@ -1,8 +1,9 @@
-version: '2'
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
 
 services:
   postgresql:
-    image: docker.io/bitnami/postgresql:15
+    image: docker.io/bitnami/postgresql:16
     volumes:
       - 'postgresql_data:/bitnami/postgresql'
     environment:
@@ -11,7 +12,7 @@ services:
       - POSTGRESQL_PASSWORD=bitnami1
       - ALLOW_EMPTY_PASSWORD=yes
   redis:
-    image: docker.io/bitnami/redis:7.0
+    image: docker.io/bitnami/redis:7.4
     volumes:
       - 'redis_data:/bitnami'
     environment:
@@ -46,6 +47,8 @@ services:
       - AIRFLOW_LDAP_BIND_PASSWORD=adminpassword
       - AIRFLOW_LDAP_UID_FIELD=uid
       - AIRFLOW_LDAP_USE_TLS=False
+      - AIRFLOW_LDAP_ROLES_MAPPING="{ 'cn=All,ou=Groups,dc=example,dc=org':['User'], 'cn=Admins,ou=Groups,dc=example,dc=org':['Admin'], }"
+      - AIRFLOW_LDAP_USER_REGISTRATION_ROLE=Public
       - AIRFLOW_USER_REGISTRATION_ROLE=Public
       - AIRFLOW_DATABASE_NAME=bitnami_airflow
       - AIRFLOW_DATABASE_USERNAME=bn_airflow

@@ -1,5 +1,0 @@
-version: '2'
-
-services:
-  fluxcd-helm-controller:
-    image: docker.io/bitnami/fluxcd-helm-controller:0

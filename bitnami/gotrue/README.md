@@ -1,4 +1,4 @@
-# GoTrue packaged by Bitnami
+# Bitnami package for GoTrue
 
 ## What is GoTrue?
 
@@ -13,25 +13,20 @@ Trademarks: This software listing is packaged by Bitnami. The respective tradema
 docker run -it --name gotrue bitnami/gotrue
 ```
 
-### Docker Compose
-
-```console
-curl -sSL https://raw.githubusercontent.com/bitnami/containers/main/bitnami/gotrue/docker-compose.yml > docker-compose.yml
-docker-compose up -d
-```
-
 ## Why use Bitnami Images?
 
 * Bitnami closely tracks upstream source changes and promptly publishes new versions of this image using our automated systems.
 * With Bitnami images the latest bug fixes and features are available as soon as possible.
 * Bitnami containers, virtual machines and cloud images use the same components and configuration approach - making it easy to switch between formats based on your project needs.
-* All our images are based on [minideb](https://github.com/bitnami/minideb) a minimalist Debian based container image which gives you a small base container image and the familiarity of a leading Linux distribution.
-* All Bitnami images available in Docker Hub are signed with [Docker Content Trust (DCT)](https://docs.docker.com/engine/security/trust/content_trust/). You can use `DOCKER_CONTENT_TRUST=1` to verify the integrity of the images.
+* All our images are based on [**minideb**](https://github.com/bitnami/minideb) -a minimalist Debian based container image that gives you a small base container image and the familiarity of a leading Linux distribution- or **scratch** -an explicitly empty image-.
+* All Bitnami images available in Docker Hub are signed with [Notation](https://notaryproject.dev/). [Check this post](https://blog.bitnami.com/2024/03/bitnami-packaged-containers-and-helm.html) to know how to verify the integrity of the images.
 * Bitnami container images are released on a regular basis with the latest distribution packages available.
+
+Looking to use GoTrue in production? Try [VMware Tanzu Application Catalog](https://bitnami.com/enterprise), the commercial edition of the Bitnami catalog.
 
 ## Supported tags and respective `Dockerfile` links
 
-Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.bitnami.com/tutorials/understand-rolling-tags-containers/).
+Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-understand-rolling-tags-containers-index.html).
 
 You can see the equivalence between the different tags by taking a look at the `tags-info.yaml` file present in the branch folder, i.e `bitnami/ASSET/BRANCH/DISTRO/tags-info.yaml`.
 
@@ -71,18 +66,10 @@ Bitnami provides up-to-date versions of GoTrue, including security patches, soon
 docker pull bitnami/gotrue:latest
 ```
 
-or if you're using Docker Compose, update the value of the image property to `bitnami/gotrue:latest`.
-
 #### Step 2: Remove the currently running container
 
 ```console
 docker rm -v gotrue
-```
-
-or using Docker Compose:
-
-```console
-docker-compose rm -v gotrue
 ```
 
 #### Step 3: Run the new image
@@ -93,13 +80,58 @@ Re-create your container from the new image.
 docker run --name gotrue bitnami/gotrue:latest
 ```
 
-or using Docker Compose:
-
-```console
-docker-compose up gotrue
-```
-
 ## Configuration
+
+### Environment variables
+
+#### Customizable environment variables
+
+| Name                                  | Description                                  | Default Value                                                                                                |
+|---------------------------------------|----------------------------------------------|--------------------------------------------------------------------------------------------------------------|
+| `DB_HOST`                             | Database host                                | `localhost`                                                                                                  |
+| `DB_PORT`                             | Database port number                         | `5432`                                                                                                       |
+| `DB_NAME`                             | Database name                                | `postgres`                                                                                                   |
+| `DB_USER`                             | Database user username                       | `postgres`                                                                                                   |
+| `DB_PASSWORD`                         | Database password                            | `nil`                                                                                                        |
+| `DB_SSL`                              | Database SSL connection enabled              | `disable`                                                                                                    |
+| `GOTRUE_DB_DATABASE_URL`              | Database URL                                 | `postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?search_path=auth&sslmode=${DB_SSL}` |
+| `GOTRUE_URI_ALLOW_LIST`               |                                              | `*`                                                                                                          |
+| `GOTRUE_OPERATOR_TOKEN`               | Operator token                               | `nil`                                                                                                        |
+| `GOTRUE_JWT_SECRET`                   | JWT Secret                                   | `nil`                                                                                                        |
+| `GOTRUE_SITE_URL`                     |                                              | `http://localhost:80`                                                                                        |
+| `GOTRUE_API_PORT`                     |                                              | `9999`                                                                                                       |
+| `GOTRUE_API_HOST`                     |                                              | `0.0.0.0`                                                                                                    |
+| `API_EXTERNAL_URL`                    | The URL on which Gotrue might be accessed at | `http://localhost:9999`                                                                                      |
+| `GOTRUE_DISABLE_SIGNUP`               |                                              | `false`                                                                                                      |
+| `GOTRUE_DB_DRIVER`                    |                                              | `postgres`                                                                                                   |
+| `GOTRUE_DB_MIGRATIONS_PATH`           |                                              | `${GOTRUE_BASE_DIR}`                                                                                         |
+| `GOTRUE_JWT_DEFAULT_GROUP_NAME`       |                                              | `authenticated`                                                                                              |
+| `GOTRUE_JWT_ADMIN_ROLES`              |                                              | `service_role`                                                                                               |
+| `GOTRUE_JWT_AUD`                      |                                              | `authenticated`                                                                                              |
+| `GOTRUE_JWT_EXP`                      |                                              | `3600`                                                                                                       |
+| `GOTRUE_EXTERNAL_EMAIL_ENABLED`       |                                              | `true`                                                                                                       |
+| `GOTRUE_MAILER_AUTOCONFIRM`           |                                              | `true`                                                                                                       |
+| `GOTRUE_SMTP_ADMIN_EMAIL`             |                                              | `your-mail@example.com`                                                                                      |
+| `GOTRUE_SMTP_HOST`                    |                                              | `smtp.exmaple.com`                                                                                           |
+| `GOTRUE_SMTP_PORT`                    |                                              | `587`                                                                                                        |
+| `GOTRUE_SMTP_SENDER_NAME`             |                                              | `your-mail@example.com`                                                                                      |
+| `GOTRUE_EXTERNAL_PHONE_ENABLED`       |                                              | `false`                                                                                                      |
+| `GOTRUE_SMS_AUTOCONFIRM`              |                                              | `false`                                                                                                      |
+| `GOTRUE_MAILER_URLPATHS_INVITE`       |                                              | `http://localhost:80/auth/v1/verify`                                                                         |
+| `GOTRUE_MAILER_URLPATHS_CONFIRMATION` |                                              | `http://localhost:80/auth/v1/verify`                                                                         |
+| `GOTRUE_MAILER_URLPATHS_RECOVERY`     |                                              | `http://localhost:80/auth/v1/verify`                                                                         |
+| `GOTRUE_MAILER_URLPATHS_EMAIL_CHANGE` |                                              | `http://localhost:80/auth/v1/verify`                                                                         |
+
+#### Read-only environment variables
+
+| Name                  | Description                              | Value                           |
+|-----------------------|------------------------------------------|---------------------------------|
+| `GOTRUE_BASE_DIR`     | gotrue installation directory.           | `${BITNAMI_ROOT_DIR}/gotrue`    |
+| `GOTRUE_LOGS_DIR`     | Directory where gotrue logs are stored.  | `${GOTRUE_BASE_DIR}/logs`       |
+| `GOTRUE_LOG_FILE`     | Directory where gotrue logs are stored.  | `${GOTRUE_LOGS_DIR}/gotrue.log` |
+| `GOTRUE_BIN_DIR`      | gotrue directory for binary executables. | `${GOTRUE_BASE_DIR}/bin`        |
+| `GOTRUE_DAEMON_USER`  | postgrest system user.                   | `supabase`                      |
+| `GOTRUE_DAEMON_GROUP` | postgrest system group.                  | `supabase`                      |
 
 ### Running commands
 
@@ -111,6 +143,12 @@ docker run --rm --name gotrue bitnami/gotrue:latest --help
 
 Check the [official GoTrue documentation](https://github.com/netlify/gotrue) for more information about how to use GoTrue.
 
+## Notable Changes
+
+### Starting January 16, 2024
+
+* The `docker-compose.yaml` file has been removed, as it was solely intended for internal testing purposes.
+
 ## Contributing
 
 We'd love for you to contribute to this Docker image. You can request new features by creating an [issue](https://github.com/bitnami/containers/issues) or submitting a [pull request](https://github.com/bitnami/containers/pulls) with your contribution.
@@ -121,7 +159,7 @@ If you encountered a problem running this container, you can file an [issue](htt
 
 ## License
 
-Copyright &copy; 2023 Bitnami
+Copyright &copy; 2024 Broadcom. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

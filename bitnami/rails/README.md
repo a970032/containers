@@ -1,4 +1,4 @@
-# Rails packaged by Bitnami
+# Bitnami package for Rails
 
 ## What is Rails?
 
@@ -12,9 +12,7 @@ Trademarks: This software listing is packaged by Bitnami. The respective tradema
 ### Local workspace
 
 ```console
-mkdir ~/myapp && cd ~/myapp
-curl -LO https://raw.githubusercontent.com/bitnami/containers/main/bitnami/rails/docker-compose.yml
-docker-compose up
+docker run --name rails bitnami/rails:latest
 ```
 
 **Warning**: This quick setup is only intended for development environments. You are encouraged to change the insecure default credentials and check out the available configuration options for the [MariaDB container](https://github.com/bitnami/containers/blob/main/bitnami/mariadb#readme) for a more secure deployment.
@@ -24,13 +22,15 @@ docker-compose up
 * Bitnami closely tracks upstream source changes and promptly publishes new versions of this image using our automated systems.
 * With Bitnami images the latest bug fixes and features are available as soon as possible.
 * Bitnami containers, virtual machines and cloud images use the same components and configuration approach - making it easy to switch between formats based on your project needs.
-* All our images are based on [minideb](https://github.com/bitnami/minideb) a minimalist Debian based container image which gives you a small base container image and the familiarity of a leading Linux distribution.
-* All Bitnami images available in Docker Hub are signed with [Docker Content Trust (DCT)](https://docs.docker.com/engine/security/trust/content_trust/). You can use `DOCKER_CONTENT_TRUST=1` to verify the integrity of the images.
+* All our images are based on [**minideb**](https://github.com/bitnami/minideb) -a minimalist Debian based container image that gives you a small base container image and the familiarity of a leading Linux distribution- or **scratch** -an explicitly empty image-.
+* All Bitnami images available in Docker Hub are signed with [Notation](https://notaryproject.dev/). [Check this post](https://blog.bitnami.com/2024/03/bitnami-packaged-containers-and-helm.html) to know how to verify the integrity of the images.
 * Bitnami container images are released on a regular basis with the latest distribution packages available.
+
+Looking to use Rails in production? Try [VMware Tanzu Application Catalog](https://bitnami.com/enterprise), the commercial edition of the Bitnami catalog.
 
 ## Supported tags and respective `Dockerfile` links
 
-Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.bitnami.com/tutorials/understand-rolling-tags-containers/).
+Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-understand-rolling-tags-containers-index.html).
 
 You can see the equivalence between the different tags by taking a look at the `tags-info.yaml` file present in the branch folder, i.e `bitnami/ASSET/BRANCH/DISTRO/tags-info.yaml`.
 
@@ -133,6 +133,24 @@ Following are a few examples of launching some commonly used Rails development c
 > $ docker-compose restart myapp
 > ```
 
+## Environment variables
+
+### Customizable environment variables
+
+| Name                         | Description                            | Default Value   |
+|------------------------------|----------------------------------------|-----------------|
+| `RAILS_ENV`                  | Rails environment mode.                | `development`   |
+| `RAILS_SKIP_ACTIVE_RECORD`   | Skip active record configuration.      | `no`            |
+| `RAILS_SKIP_DB_SETUP`        | Skip database configuration.           | `no`            |
+| `RAILS_SKIP_DB_WAIT`         | Skip waiting for database to be ready. | `no`            |
+| `RAILS_RETRY_ATTEMPTS`       | Rails retry attempts.                  | `30`            |
+| `RAILS_DATABASE_TYPE`        | Database server type.                  | `mariadb`       |
+| `RAILS_DATABASE_HOST`        | Database server host.                  | `mariadb`       |
+| `RAILS_DATABASE_PORT_NUMBER` | Database server port.                  | `3306`          |
+| `RAILS_DATABASE_NAME`        | Database name.                         | `bitnami_myapp` |
+
+### Read-only environment variables
+
 ## Configuring your database
 
 You can configure the MariaDB hostname and database name to use for development purposes using the environment variables **DATABASE_HOST** & **DATABASE_NAME**.
@@ -195,6 +213,12 @@ When the `myapp` service container is restarted, it will install all the missing
 
 * Decrease the size of the container. The configuration logic is now based on Bash scripts in the `rootfs/` folder.
 
+## Using `docker-compose.yaml`
+
+Please be aware this file has not undergone internal testing. Consequently, we advise its use exclusively for development or testing purposes.
+
+If you detect any issue in the `docker-compose.yaml` file, feel free to report it or contribute with a fix by following our [Contributing Guidelines](https://github.com/bitnami/containers/blob/main/CONTRIBUTING.md).
+
 ## Contributing
 
 We'd love for you to contribute to this container. You can request new features by creating an [issue](https://github.com/bitnami/containers/issues/new) or submitting a [pull request](https://github.com/bitnami/containers/pulls/new) with your contribution.
@@ -209,17 +233,9 @@ If you encountered a problem running this container, you can file an [issue](htt
 * Version of this container
 * The command you used to run the container, and any relevant output you saw (masking any sensitive information)
 
-### Community supported solution
-
-Please, note this asset is a community-supported solution. This means that the Bitnami team is not actively working on new features/improvements nor providing support through GitHub Issues. Any new issue will stay open for 20 days to allow the community to contribute, after 15 days without activity the issue will be marked as stale being closed after 5 days.
-
-The Bitnami team will review any PR that is created, feel free to create a PR if you find any issue or want to implement a new feature.
-
-New versions and releases cadence are not going to be affected. Once a new version is released in the upstream project, the Bitnami container image will be updated to use the latest version, supporting the different branches supported by the upstream project as usual.
-
 ## License
 
-Copyright &copy; 2023 Bitnami
+Copyright &copy; 2024 Broadcom. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

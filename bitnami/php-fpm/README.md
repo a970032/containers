@@ -1,4 +1,4 @@
-# PHP-FPM packaged by Bitnami
+# Bitnami package for PHP-FPM
 
 ## What is PHP-FPM?
 
@@ -13,25 +13,20 @@ Trademarks: This software listing is packaged by Bitnami. The respective tradema
 docker run -it --name phpfpm -v /path/to/app:/app bitnami/php-fpm
 ```
 
-### Docker Compose
-
-```console
-curl -sSL https://raw.githubusercontent.com/bitnami/containers/main/bitnami/php-fpm/docker-compose.yml > docker-compose.yml
-docker-compose up -d
-```
-
 ## Why use Bitnami Images?
 
 * Bitnami closely tracks upstream source changes and promptly publishes new versions of this image using our automated systems.
 * With Bitnami images the latest bug fixes and features are available as soon as possible.
 * Bitnami containers, virtual machines and cloud images use the same components and configuration approach - making it easy to switch between formats based on your project needs.
-* All our images are based on [minideb](https://github.com/bitnami/minideb) a minimalist Debian based container image which gives you a small base container image and the familiarity of a leading Linux distribution.
-* All Bitnami images available in Docker Hub are signed with [Docker Content Trust (DCT)](https://docs.docker.com/engine/security/trust/content_trust/). You can use `DOCKER_CONTENT_TRUST=1` to verify the integrity of the images.
+* All our images are based on [**minideb**](https://github.com/bitnami/minideb) -a minimalist Debian based container image that gives you a small base container image and the familiarity of a leading Linux distribution- or **scratch** -an explicitly empty image-.
+* All Bitnami images available in Docker Hub are signed with [Notation](https://notaryproject.dev/). [Check this post](https://blog.bitnami.com/2024/03/bitnami-packaged-containers-and-helm.html) to know how to verify the integrity of the images.
 * Bitnami container images are released on a regular basis with the latest distribution packages available.
+
+Looking to use PHP-FPM in production? Try [VMware Tanzu Application Catalog](https://bitnami.com/enterprise), the commercial edition of the Bitnami catalog.
 
 ## Supported tags and respective `Dockerfile` links
 
-Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.bitnami.com/tutorials/understand-rolling-tags-containers/).
+Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-understand-rolling-tags-containers-index.html).
 
 You can see the equivalence between the different tags by taking a look at the `tags-info.yaml` file present in the branch folder, i.e `bitnami/ASSET/BRANCH/DISTRO/tags-info.yaml`.
 
@@ -198,6 +193,46 @@ docker run -it --name php-fpm -v /path/to/app:/app bitnami/php-fpm \
 ```
 
 ## Configuration
+
+### Environment variables
+
+#### Customizable environment variables
+
+| Name                      | Description                                                                                         | Default Value |
+|---------------------------|-----------------------------------------------------------------------------------------------------|---------------|
+| `PHP_FPM_LISTEN_ADDRESS`  | PHP-FPM listen address. Can be a port number, a host:port combination or the path to a socket file. | `nil`         |
+| `PHP_DATE_TIMEZONE`       | PHP timezone.                                                                                       | `nil`         |
+| `PHP_ENABLE_OPCACHE`      | Enables OPcache for PHP scripts.                                                                    | `nil`         |
+| `PHP_MAX_EXECUTION_TIME`  | Maximum execution time for PHP scripts.                                                             | `nil`         |
+| `PHP_MAX_INPUT_TIME`      | Maximum input time for PHP scripts.                                                                 | `nil`         |
+| `PHP_MAX_INPUT_VARS`      | Maximum amount of input variables for PHP scripts.                                                  | `nil`         |
+| `PHP_MEMORY_LIMIT`        | Memory limit for PHP scripts.                                                                       | `nil`         |
+| `PHP_POST_MAX_SIZE`       | Maximum size for PHP POST requests.                                                                 | `nil`         |
+| `PHP_UPLOAD_MAX_FILESIZE` | Maximum file size for PHP uploads.                                                                  | `nil`         |
+
+#### Read-only environment variables
+
+| Name                                          | Description                                                                                                 | Value                             |
+|-----------------------------------------------|-------------------------------------------------------------------------------------------------------------|-----------------------------------|
+| `PHP_BASE_DIR`                                | PHP-FPM installation directory.                                                                             | `${BITNAMI_ROOT_DIR}/php`         |
+| `PHP_BIN_DIR`                                 | PHP directory for binary executables.                                                                       | `${PHP_BASE_DIR}/bin`             |
+| `PHP_CONF_DIR`                                | PHP configuration directory.                                                                                | `${PHP_BASE_DIR}/etc`             |
+| `PHP_DEFAULT_CONF_DIR`                        | PHP configuration directory.                                                                                | `${PHP_BASE_DIR}/etc.default`     |
+| `PHP_TMP_DIR`                                 | PHP directory for runtime temporary files.                                                                  | `${PHP_BASE_DIR}/var/run`         |
+| `PHP_CONF_FILE`                               | Path to the PHP configuration file.                                                                         | `${PHP_CONF_DIR}/php.ini`         |
+| `PHP_DEFAULT_OPCACHE_INTERNED_STRINGS_BUFFER` | Default amount of memory used to store interned strings, in megabytes.                                      | `16`                              |
+| `PHP_DEFAULT_OPCACHE_MEMORY_CONSUMPTION`      | Default size of the OPcache shared memory storage, in megabytes.                                            | `192`                             |
+| `PHP_DEFAULT_OPCACHE_FILE_CACHE`              | Default path to the second-level OPcache cache directory.                                                   | `${PHP_TMP_DIR}/opcache_file`     |
+| `PHP_FPM_SBIN_DIR`                            | PHP-FPM directory for binary executables.                                                                   | `${PHP_BASE_DIR}/sbin`            |
+| `PHP_FPM_LOGS_DIR`                            | PHP-FPM directory for logs.                                                                                 | `${PHP_BASE_DIR}/logs`            |
+| `PHP_FPM_LOG_FILE`                            | PHP-FPM log file.                                                                                           | `${PHP_FPM_LOGS_DIR}/php-fpm.log` |
+| `PHP_FPM_CONF_FILE`                           | Path to the PHP-FPM configuration file.                                                                     | `${PHP_CONF_DIR}/php-fpm.conf`    |
+| `PHP_FPM_PID_FILE`                            | Path to the PHP-FPM PID file.                                                                               | `${PHP_TMP_DIR}/php-fpm.pid`      |
+| `PHP_FPM_DEFAULT_LISTEN_ADDRESS`              | Default PHP-FPM listen address. Can be a port number, a host:port combination or the path to a socket file. | `${PHP_TMP_DIR}/www.sock`         |
+| `PHP_FPM_DAEMON_USER`                         | PHP-FPM system user.                                                                                        | `daemon`                          |
+| `PHP_FPM_DAEMON_GROUP`                        | PHP-FPM system group.                                                                                       | `daemon`                          |
+| `PHP_EXPOSE_PHP`                              | Enables HTTP header with PHP version.                                                                       | `0`                               |
+| `PHP_OUTPUT_BUFFERING`                        | Size of the output buffer for PHP                                                                           | `8196`                            |
 
 ### Mount a custom config file
 
@@ -380,6 +415,12 @@ docker-compose up phpfpm
 
 * `/app` directory is no longer exported as a volume. This caused problems when building on top of the image, since changes in the volume are not persisted between Dockerfile `RUN` instructions. To keep the previous behavior (so that you can mount the volume in another container), create the container with the `-v /app` option.
 
+## Using `docker-compose.yaml`
+
+Please be aware this file has not undergone internal testing. Consequently, we advise its use exclusively for development or testing purposes.
+
+If you detect any issue in the `docker-compose.yaml` file, feel free to report it or contribute with a fix by following our [Contributing Guidelines](https://github.com/bitnami/containers/blob/main/CONTRIBUTING.md).
+
 ## Contributing
 
 We'd love for you to contribute to this container. You can request new features by creating an [issue](https://github.com/bitnami/containers/issues) or submitting a [pull request](https://github.com/bitnami/containers/pulls) with your contribution.
@@ -390,7 +431,7 @@ If you encountered a problem running this container, you can file an [issue](htt
 
 ## License
 
-Copyright &copy; 2023 Bitnami
+Copyright &copy; 2024 Broadcom. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

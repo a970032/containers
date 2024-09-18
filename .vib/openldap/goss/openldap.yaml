@@ -1,3 +1,6 @@
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
+
 file:
   /opt/bitnami/openldap/etc/slapd.d:
     exists: true
@@ -18,11 +21,11 @@ file:
     exists: true
   {{ end }}
 command:
-  check-app-version:
-    exec: {{ .Vars.version.bin_name }} {{ .Vars.version.flag }} 2>&1
+  check-pw-sha2-library-output:
+    exec: slappasswd -o module-load=/opt/bitnami/openldap/libexec/openldap/pw-sha2.so -h '{SHA256}' -s bitnami123
     exit-status: 0
     stdout:
-      - {{ .Env.APP_VERSION }}
+      - "zbRYwNWa5lwE8+I7W+YIdh2pA/UhaZWJB+eJ7euy5Fc="
   check-enabled-backends:
     exec: slapd -VVV 2>&1
     exit-status: 0

@@ -1,0 +1,13 @@
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
+
+command:
+  check-ejbca-help:
+    exec: ejbca.sh --help
+    exit-status: 0
+group:
+  wildfly:
+    exists: true
+user:
+  wildfly:
+    exists: true

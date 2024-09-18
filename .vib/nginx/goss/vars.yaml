@@ -1,5 +1,4 @@
 binaries:
-  - gosu
   - nginx
   - render-template
 config_opts:
@@ -41,6 +40,7 @@ modules:
     - mail_ssl
     - http_gunzip
     - http_auth_request
+    - http_dav
     - http_sub
     - http_geoip
     - stream_realip

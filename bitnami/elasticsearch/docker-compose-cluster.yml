@@ -1,4 +1,6 @@
-version: '2'
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
+
 services:
   elasticsearch-node1:
     image: docker.io/bitnami/elasticsearch:8

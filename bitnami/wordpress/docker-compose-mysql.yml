@@ -1,7 +1,9 @@
-version: '2'
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
+
 services:
   mysql:
-    image: docker.io/bitnami/mysql:8.0
+    image: docker.io/bitnami/mysql:8.4
     volumes:
       - 'mysql_data:/bitnami/mysql'
     environment:

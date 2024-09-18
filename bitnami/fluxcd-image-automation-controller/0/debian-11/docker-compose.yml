@@ -1,5 +1,0 @@
-version: '2'
-
-services:
-  fluxcd-image-automation-controller:
-    image: docker.io/bitnami/fluxcd-image-automation-controller:0

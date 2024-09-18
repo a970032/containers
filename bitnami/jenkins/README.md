@@ -1,4 +1,4 @@
-# Jenkins packaged by Bitnami
+# Bitnami package for Jenkins
 
 ## What is Jenkins?
 
@@ -10,8 +10,7 @@ Trademarks: This software listing is packaged by Bitnami. The respective tradema
 ## TL;DR
 
 ```console
-curl -sSL https://raw.githubusercontent.com/bitnami/containers/main/bitnami/jenkins/docker-compose.yml > docker-compose.yml
-docker-compose up -d
+docker run --name jenkins bitnami/jenkins:latest
 ```
 
 You can find the default credentials and available configuration options in the [Environment Variables](#environment-variables) section.
@@ -21,9 +20,11 @@ You can find the default credentials and available configuration options in the 
 * Bitnami closely tracks upstream source changes and promptly publishes new versions of this image using our automated systems.
 * With Bitnami images the latest bug fixes and features are available as soon as possible.
 * Bitnami containers, virtual machines and cloud images use the same components and configuration approach - making it easy to switch between formats based on your project needs.
-* All our images are based on [minideb](https://github.com/bitnami/minideb) a minimalist Debian based container image which gives you a small base container image and the familiarity of a leading Linux distribution.
-* All Bitnami images available in Docker Hub are signed with [Docker Content Trust (DCT)](https://docs.docker.com/engine/security/trust/content_trust/). You can use `DOCKER_CONTENT_TRUST=1` to verify the integrity of the images.
+* All our images are based on [**minideb**](https://github.com/bitnami/minideb) -a minimalist Debian based container image that gives you a small base container image and the familiarity of a leading Linux distribution- or **scratch** -an explicitly empty image-.
+* All Bitnami images available in Docker Hub are signed with [Notation](https://notaryproject.dev/). [Check this post](https://blog.bitnami.com/2024/03/bitnami-packaged-containers-and-helm.html) to know how to verify the integrity of the images.
 * Bitnami container images are released on a regular basis with the latest distribution packages available.
+
+Looking to use Jenkins in production? Try [VMware Tanzu Application Catalog](https://bitnami.com/enterprise), the commercial edition of the Bitnami catalog.
 
 ## How to deploy Jenkins in Kubernetes?
 
@@ -33,11 +34,11 @@ Bitnami containers can be used with [Kubeapps](https://kubeapps.dev/) for deploy
 
 ## Why use a non-root container?
 
-Non-root container images add an extra layer of security and are generally recommended for production environments. However, because they run as a non-root user, privileged tasks are typically off-limits. Learn more about non-root containers [in our docs](https://docs.bitnami.com/tutorials/work-with-non-root-containers/).
+Non-root container images add an extra layer of security and are generally recommended for production environments. However, because they run as a non-root user, privileged tasks are typically off-limits. Learn more about non-root containers [in our docs](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-work-with-non-root-containers-index.html).
 
 ## Supported tags and respective `Dockerfile` links
 
-Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.bitnami.com/tutorials/understand-rolling-tags-containers/).
+Learn more about the Bitnami tagging policy and the difference between rolling tags and immutable tags [in our documentation page](https://docs.vmware.com/en/VMware-Tanzu-Application-Catalog/services/tutorials/GUID-understand-rolling-tags-containers-index.html).
 
 You can see the equivalence between the different tags by taking a look at the `tags-info.yaml` file present in the branch folder, i.e `bitnami/ASSET/BRANCH/DISTRO/tags-info.yaml`.
 
@@ -67,18 +68,7 @@ docker build -t bitnami/APP:latest .
 
 ## How to use this image
 
-### Using Docker Compose
-
-The main folder of this repository contains a functional [`docker-compose.yml`](https://github.com/bitnami/containers/blob/main/bitnami/jenkins/docker-compose.yml) file. Run the application using it as shown below:
-
-```console
-curl -sSL https://raw.githubusercontent.com/bitnami/containers/main/bitnami/jenkins/docker-compose.yml > docker-compose.yml
-docker-compose up -d
-```
-
 ### Using the Docker Command Line
-
-If you want to run the application manually instead of using `docker-compose`, these are the basic steps you need to run:
 
 #### Step 1: Create a network
 
@@ -142,9 +132,73 @@ docker run -d -p 80:8080 --name jenkins \
   bitnami/jenkins:latest
 ```
 
+### Using Docker Compose
+
+```console
+curl -sSL https://raw.githubusercontent.com/bitnami/containers/main/bitnami/jenkins/docker-compose.yml > docker-compose.yml
+docker-compose up -d
+```
+
+Please be aware this file has not undergone internal testing. Consequently, we advise its use exclusively for development or testing purposes. For production-ready deployments, we highly recommend utilizing its associated [Bitnami Helm chart](https://github.com/bitnami/charts/tree/main/bitnami/jenkins).
+
+If you detect any issue in the `docker-compose.yaml` file, feel free to report it or contribute with a fix by following our [Contributing Guidelines](https://github.com/bitnami/containers/blob/main/CONTRIBUTING.md).
+
 ## Configuration
 
 ### Environment variables
+
+#### Customizable environment variables
+
+| Name                                 | Description                                                                                                                           | Default Value                |
+|--------------------------------------|---------------------------------------------------------------------------------------------------------------------------------------|------------------------------|
+| `JENKINS_HOME`                       | Jenkins home directory.                                                                                                               | `${JENKINS_VOLUME_DIR}/home` |
+| `JENKINS_PLUGINS`                    | Comma-separated list of Jenkins plugins to be installed.                                                                              | `nil`                        |
+| `JENKINS_PLUGINS_LATEST`             | Set to false to install the minimum required version.                                                                                 | `true`                       |
+| `JENKINS_PLUGINS_LATEST_SPECIFIED`   | Set to true to install the latest dependencies of any plugin that is requested to have the latest version.                            | `false`                      |
+| `JENKINS_SKIP_IMAGE_PLUGINS`         | Set to true to skip the installation of image built-in plugins.                                                                       | `false`                      |
+| `JENKINS_OVERRIDE_PLUGINS`           | Set to true to force overriding existing plugins from the persisted volume.                                                           | `false`                      |
+| `JENKINS_OVERRIDE_PATHS`             | Comma-separated list of relative paths to be removed from the Jenkins home and recreated if present in the mounted content directory. | `nil`                        |
+| `JENKINS_HTTP_LISTEN_ADDRESS`        | Jenkins HTTP listen address.                                                                                                          | `nil`                        |
+| `JENKINS_HTTPS_LISTEN_ADDRESS`       | Jenkins HTTPS listen address.                                                                                                         | `nil`                        |
+| `JENKINS_HTTP_PORT_NUMBER`           | Jenkins HTTP port number.                                                                                                             | `nil`                        |
+| `JENKINS_HTTPS_PORT_NUMBER`          | Jenkins HTTPS port number.                                                                                                            | `nil`                        |
+| `JENKINS_JNLP_PORT_NUMBER`           | Jenkins JNLP port number.                                                                                                             | `nil`                        |
+| `JENKINS_EXTERNAL_HTTP_PORT_NUMBER`  | Port to access Jenkins from outside of the instance using HTTP.                                                                       | `80`                         |
+| `JENKINS_EXTERNAL_HTTPS_PORT_NUMBER` | Port to access Jenkins from outside of the instance using HTTPS.                                                                      | `443`                        |
+| `JENKINS_HOST`                       | Jenkins hostname.                                                                                                                     | `nil`                        |
+| `JENKINS_FORCE_HTTPS`                | Enable serving Jenkins through HTTPS instead of HTTP.                                                                                 | `no`                         |
+| `JENKINS_SKIP_BOOTSTRAP`             | Whether to perform initial bootstrapping for the application.                                                                         | `no`                         |
+| `JENKINS_ENABLE_SWARM`               | Enable the Jenkins Swarm configuration.                                                                                               | `no`                         |
+| `JENKINS_CERTS_DIR`                  | Password of keystore.                                                                                                                 | `${JENKINS_HOME}`            |
+| `JENKINS_KEYSTORE_PASSWORD`          | Password of keystore.                                                                                                                 | `bitnami`                    |
+| `JENKINS_OPTS`                       | Jenkins launcher parameters.                                                                                                          | `nil`                        |
+| `JENKINS_USERNAME`                   | Jenkins admin user name.                                                                                                              | `user`                       |
+| `JENKINS_PASSWORD`                   | Jenkins admin user password.                                                                                                          | `bitnami`                    |
+| `JENKINS_EMAIL`                      | Jenkins admin user e-mail address.                                                                                                    | `user@example.com`           |
+| `JENKINS_SWARM_USERNAME`             | Jenkins user for Swarm access name .                                                                                                  | `swarm`                      |
+| `JENKINS_SWARM_PASSWORD`             | Jenkins user for Swarm access password.                                                                                               | `nil`                        |
+| `JAVA_HOME`                          | Java Home directory.                                                                                                                  | `${BITNAMI_ROOT_DIR}/java`   |
+| `JAVA_OPTS`                          | Java options.                                                                                                                         | `nil`                        |
+
+#### Read-only environment variables
+
+| Name                                   | Description                                                                                | Value                                                   |
+|----------------------------------------|--------------------------------------------------------------------------------------------|---------------------------------------------------------|
+| `JENKINS_BASE_DIR`                     | Jenkins installation directory.                                                            | `${BITNAMI_ROOT_DIR}/jenkins`                           |
+| `JENKINS_LOGS_DIR`                     | Jenkins directory for log files.                                                           | `${JENKINS_BASE_DIR}/logs`                              |
+| `JENKINS_LOG_FILE`                     | Path to the Jenkins log file.                                                              | `${JENKINS_LOGS_DIR}/jenkins.log`                       |
+| `JENKINS_TMP_DIR`                      | Jenkins directory for runtime temporary files.                                             | `${JENKINS_BASE_DIR}/tmp`                               |
+| `JENKINS_PID_FILE`                     | Path to the Jenkins PID file.                                                              | `${JENKINS_TMP_DIR}/jenkins.pid`                        |
+| `JENKINS_TEMPLATES_DIR`                | Path to the directory containing templates to generate groovy scripts.                     | `${BITNAMI_ROOT_DIR}/scripts/jenkins/bitnami-templates` |
+| `JENKINS_VOLUME_DIR`                   | Persistence base directory.                                                                | `${BITNAMI_VOLUME_DIR}/jenkins`                         |
+| `JENKINS_MOUNTED_CONTENT_DIR`          | Directory to mount custom Jenkins content (such as Groovy scripts or configuration files). | `/usr/share/jenkins/ref`                                |
+| `JENKINS_DAEMON_USER`                  | Jenkins system user.                                                                       | `jenkins`                                               |
+| `JENKINS_DAEMON_GROUP`                 | Jenkins system group.                                                                      | `jenkins`                                               |
+| `JENKINS_DEFAULT_HTTP_LISTEN_ADDRESS`  | Default Jenkins HTTP listen address to enable at build time.                               | `0.0.0.0`                                               |
+| `JENKINS_DEFAULT_HTTPS_LISTEN_ADDRESS` | Default Jenkins HTTPS listen address to enable at build time.                              | `0.0.0.0`                                               |
+| `JENKINS_DEFAULT_HTTP_PORT_NUMBER`     | Default Jenkins HTTP port number to enable at build time.                                  | `8080`                                                  |
+| `JENKINS_DEFAULT_HTTPS_PORT_NUMBER`    | Default Jenkins HTTPS port number to enable at build time.                                 | `8443`                                                  |
+| `JENKINS_DEFAULT_JNLP_PORT_NUMBER`     | Default Jenkins JNLP port number to enable at build time.                                  | `50000`                                                 |
 
 When you start the Jenkins image, you can adjust the configuration of the instance by passing one or more environment variables either on the docker-compose file or on the `docker run` command line. If you want to add a new environment variable:
 
@@ -167,26 +221,6 @@ When you start the Jenkins image, you can adjust the configuration of the instan
       --volume /path/to/jenkins-persistence:/bitnami/jenkins \
       bitnami/jenkins:latest
     ```
-
-Available environment variables:
-
-#### User and Site configuration
-
-* `JENKINS_USERNAME`: Jenkins admin username. Default: **user**
-* `JENKINS_PASSWORD`: Jenkins admin password. Default: **bitnami**
-* `JENKINS_EMAIL`: Jenkins admin email. Default: **user@example.com**
-* `JENKINS_HOME`: Jenkins home directory. Default: **/bitnami/jenkins/home**
-* `JENKINS_HTTP_PORT_NUMBER`: Port used by Jenkins for HTTP. Default: **8080**
-* `JENKINS_HTTPS_PORT_NUMBER`: Port used by Jenkins for HTTPS. Default: **8443**
-* `JENKINS_EXTERNAL_HTTP_PORT_NUMBER`: Port to used by Jenkins to generate URLs and links when accessing using HTTP. Default: **80**
-* `JENKINS_EXTERNAL_HTTPS_PORT_NUMBER`: Port to used by Jenkins to generate URLs and links when accessing using HTTPS. Default: **443**
-* `JENKINS_JNLP_PORT_NUMBER`: Port used by Jenkins for JNLP. Default: **50000**
-* `JENKINS_FORCE_HTTPS`: Enable serving Jenkins only through HTTPS. Default: **no**
-* `JENKINS_SKIP_BOOTSTRAP`: Skip performing the initial bootstrapping. Default: **no**
-
-#### JAVA configuration
-
-* `JAVA_OPTS`: Customize JVM parameters. No defaults.
 
 ## Logging
 
@@ -220,7 +254,7 @@ To backup your data, configuration and logs, follow these simple steps:
 We need to mount two volumes in a container we will use to create the backup: a directory on your host to store the backup in, and the volumes from the container we just stopped so we can access the data.
 
 ```console
-docker run --rm -v /path/to/jenkins-backups:/backups --volumes-from jenkins bitnami/bitnami-shell \
+docker run --rm -v /path/to/jenkins-backups:/backups --volumes-from jenkins bitnami/os-shell \
   cp -a /bitnami/jenkins /backups/latest
 ```
 
@@ -315,6 +349,16 @@ You might need to customize the JVM running Jenkins, typically to pass system pr
 ```console
 docker run -d --name jenkins -p 80:8080 \
   --env JAVA_OPTS=-Dhudson.footerURL=http://mycompany.com \
+  bitnami/jenkins:latest
+```
+
+### Using custom launcher parameters
+
+In order to use custom parameters for Jenkins launcher, for example if you need to install Jenkins behind a reverse proxy with a prefix such as mycompany.com/jenkins, you can use the "JENKINS_OPTS" environment variable:
+
+```console
+docker run -d --name jenkins -p 8080:8080 \
+  --env JENKINS_OPTS="--prefix=/jenkins" \
   bitnami/jenkins:latest
 ```
 
@@ -419,7 +463,7 @@ If you encountered a problem running this container, you can file an [issue](htt
 
 ## License
 
-Copyright &copy; 2023 Bitnami
+Copyright &copy; 2024 Broadcom. The term "Broadcom" refers to Broadcom Inc. and/or its subsidiaries.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

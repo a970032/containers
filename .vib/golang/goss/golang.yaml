@@ -1,3 +1,6 @@
+# Copyright Broadcom, Inc. All Rights Reserved.
+# SPDX-License-Identifier: APACHE-2.0
+
 command:
   # Major and Minor versions are often shown as "x.0" and "x.y" instead of "x.0.0" and "x.y.0"
   check-app-version:
@@ -11,4 +14,4 @@ command:
       ./{{ $filename }}
     exit-status: 0
     stdout:
-      - Hello VIB
+      - "Hello VIB"

@@ -1,0 +1,6 @@
+#!/bin/bash
+INFO "Execute custom command from $MAGNETO_PRE_SCRIPT"
+
+if  [! -z "${MAGNETO_PRE_SCRIPT}"]; then
+	eval $MAGNETO_PRE_SCRIPT
+fi
